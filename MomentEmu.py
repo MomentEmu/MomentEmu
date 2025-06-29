@@ -134,7 +134,9 @@ def solve_emulator_coefficients(M, nu):
     """
     return np.linalg.solve(M, nu)  # D x m
 
-def symbolic_polynomial_expressions(coeffs, multi_indices, variable_names=None):
+def symbolic_polynomial_expressions(coeffs, multi_indices, variable_names=None, 
+                                    input_means=None, input_vars=None, 
+                                    output_means=None, output_vars=None):
     """
     Convert emulator coefficients into sympy expressions.
     coeffs: D x m (number of basis terms × number of outputs)
@@ -147,14 +149,30 @@ def symbolic_polynomial_expressions(coeffs, multi_indices, variable_names=None):
         variable_names = [f"x{i+1}" for i in range(n)]
     vars_sym = sp.symbols(variable_names)
 
+    if input_vars is not None:
+        input_stds = np.sqrt(input_vars)
+    else:
+        input_stds = None
+    if output_vars is not None:
+        output_stds = np.sqrt(output_vars)
+    else:
+        output_stds = None
+
     expressions = []
     for j in range(m):  # For each output dimension
         expr = 0
         for c, alpha in zip(coeffs[:, j], multi_indices):
-            monomial = np.prod([vars_sym[i]**alpha[i] for i in range(n)])
+            if input_means is not None and input_stds is not None:
+                monomial = np.prod([ ( (vars_sym[i] - input_means[i]) / input_stds[i] )**alpha[i] for i in range(n)])
+            elif input_means is not None:
+                monomial = np.prod([ (vars_sym[i] - input_means[i])**alpha[i] for i in range(n)])
             expr += c * monomial
+        if output_means is not None and output_stds is not None:
+            expr = expr * output_stds[j] + output_means[j]
+        elif output_means is not None:
+            expr = expr + output_means[j]
         expressions.append(sp.simplify(expr))
-    return expressions, vars_sym
+    return expressions
 
 def evaluate_emulator(X, coeffs, multi_indices):
     """
@@ -173,9 +191,7 @@ class PolyEmu():
                 RMSE_tol=1e-2, forward=True, backward=False,
                 init_deg_forward=None, max_degree_forward=10, 
                 init_deg_backward=None, max_degree_backward=10, 
-                fractional_error=False, 
-                X_with_std=True,
-                Y_with_std=True):
+                fractional_error=False):
         self.n_params = X.shape[1]
         self.n_outputs = Y.shape[1]
         if X_test is None or Y_test is None:
@@ -186,22 +202,41 @@ class PolyEmu():
             X_val, Y_val = X_test, Y_test
 
         # Scale the training data
-        self.scaler_X = StandardScaler(with_std=X_with_std)
-        self.scaler_Y = StandardScaler(with_std=Y_with_std)
+        self.scaler_X = StandardScaler()
+        self.scaler_Y = StandardScaler()
 
-        self.X_train_scaled = self.scaler_X.fit_transform(X_train)
-        self.Y_train_scaled = self.scaler_Y.fit_transform(Y_train)
-        self.X_val_scaled = self.scaler_X.transform(X_val)
-        self.Y_val_scaled = self.scaler_Y.transform(Y_val)
+        X_train_scaled = self.scaler_X.fit_transform(X_train)
+        Y_train_scaled = self.scaler_Y.fit_transform(Y_train)
+        X_val_scaled = self.scaler_X.transform(X_val)
+        Y_val_scaled = self.scaler_Y.transform(Y_val)
 
         if forward:
             print("Generating forward emulator...")
-            self.forward_emulator = self.generate_forward_emulator(RMSE_tol=RMSE_tol, init_deg=init_deg_forward, max_degree=max_degree_forward, fractional_error=fractional_error)
+            self.generate_forward_emulator(X_train_scaled, 
+                                        Y_train_scaled,
+                                        X_val_scaled,
+                                        Y_val_scaled,
+                                        RMSE_tol=RMSE_tol, 
+                                        init_deg=init_deg_forward, 
+                                        max_degree=max_degree_forward, 
+                                        fractional_error=fractional_error)
         if backward:
             print("Generating backward emulator...")
-            self.backward_emulator = self.generate_backward_emulator(RMSE_tol=RMSE_tol, init_deg=init_deg_backward, max_degree=max_degree_backward, fractional_error=fractional_error)
+            self.generate_backward_emulator(X_train_scaled, 
+                                            Y_train_scaled,
+                                            X_val_scaled,
+                                            Y_val_scaled,
+                                            RMSE_tol=RMSE_tol, 
+                                            init_deg=init_deg_backward, 
+                                            max_degree=max_degree_backward, 
+                                            fractional_error=fractional_error)
 
-    def generate_forward_emulator(self, RMSE_tol=1e-3, init_deg=None, max_degree=10, fractional_error=True):
+    def generate_forward_emulator(self, 
+                                  X_train_scaled, 
+                                  Y_train_scaled,
+                                  X_val_scaled,
+                                  Y_val_scaled,
+                                  RMSE_tol=1e-3, init_deg=None, max_degree=10, fractional_error=True):
 
         if init_deg is None:
             if self.n_params > 6:
@@ -220,24 +255,25 @@ class PolyEmu():
         multi_indices_list = []
 
         for d in range(degree, max_degree + 1):
-            M, nu, multi_indices = compute_moments_vector_output(self.X_train_scaled, self.Y_train_scaled, d)
+            M, nu, multi_indices = compute_moments_vector_output(X_train_scaled, Y_train_scaled, d)
             coeffs = solve_emulator_coefficients(M, nu)
 
-            Y_val_pred = evaluate_emulator(self.X_val_scaled, coeffs, multi_indices)
+            Y_val_pred = evaluate_emulator(X_val_scaled, coeffs, multi_indices)
 
             if fractional_error:
                 # Define the RMS fractional error
-                frac_err = (Y_val_pred-self.Y_val_scaled) / (np.abs(self.Y_val_scaled) + 1e-10)
+                frac_err = (Y_val_pred-Y_val_scaled) / (np.abs(Y_val_scaled) + 1e-10)
                 # Calculate the RMS fractional error
                 RMSE_val = np.sqrt(np.mean(frac_err**2))
             else:
-                RMSE_val = np.sqrt(mean_squared_error(self.Y_val_scaled, Y_val_pred))
+                RMSE_val = np.sqrt(mean_squared_error(Y_val_scaled, Y_val_pred))
 
             coeffs_list.append(coeffs)
             multi_indices_list.append(multi_indices)
             RMSE_val_list.append(RMSE_val)
 
             if RMSE_val < RMSE_tol:
+                self.foward_degree = d
                 print(f"Forward emulator generated with degree {d}, RMSE_val of {RMSE_val}.")
                 break
             if d == max_degree:
@@ -245,20 +281,28 @@ class PolyEmu():
                 ind = np.argmin(RMSE_val_list)
                 coeffs = coeffs_list[ind]
                 multi_indices = multi_indices_list[ind]
+                self.foward_degree = degree + ind
                 warning(f"Maximum degree {max_degree} reached. Returning emulator with degree {degree+ind} with RMSE_val of {RMSE_val_list[ind]}.")
         
-        def emulator(X):
-            if X.ndim == 1:
-                X = X.reshape(1, -1)
-            X_scaled = self.scaler_X.transform(X)
-            Y_pred_scaled = evaluate_emulator(X_scaled, coeffs, multi_indices)
-            Y_pred = self.scaler_Y.inverse_transform(Y_pred_scaled)
-            return Y_pred
+        self.forward_coeffs = coeffs
+        self.forward_multi_indices = multi_indices
         
-        return emulator
+        pass
 
+    def forward_emulator(self, X):
+        if X.ndim == 1:
+            X = X.reshape(1, -1)
+        X_scaled = self.scaler_X.transform(X)
+        Y_pred_scaled = evaluate_emulator(X_scaled, self.forward_coeffs, self.forward_multi_indices)
+        Y_pred = self.scaler_Y.inverse_transform(Y_pred_scaled)
+        return Y_pred
 
-    def generate_backward_emulator(self, RMSE_tol=1e-2, init_deg=None, max_degree=10, fractional_error=True):
+    def generate_backward_emulator(self, 
+                                   X_train_scaled, 
+                                   Y_train_scaled,
+                                   X_val_scaled,
+                                   Y_val_scaled,
+                                   RMSE_tol=1e-2, init_deg=None, max_degree=10, fractional_error=True):
         if init_deg is None:
             if self.n_outputs > 6:
                 degree = 1
@@ -276,25 +320,26 @@ class PolyEmu():
         multi_indices_list = []
 
         for d in range(degree, max_degree + 1):
-            M, nu, multi_indices = compute_moments_vector_output(self.Y_train_scaled, self.X_train_scaled, d)
+            M, nu, multi_indices = compute_moments_vector_output(Y_train_scaled, X_train_scaled, d)
             coeffs = solve_emulator_coefficients(M, nu)
 
-            X_val_pred = evaluate_emulator(self.Y_val_scaled, coeffs, multi_indices)
-            RMSE_val = np.sqrt(mean_squared_error(self.X_val_scaled, X_val_pred))
+            X_val_pred = evaluate_emulator(Y_val_scaled, coeffs, multi_indices)
+            RMSE_val = np.sqrt(mean_squared_error(X_val_scaled, X_val_pred))
 
             if fractional_error:
                 # Define the RMS fractional error
-                frac_err = (X_val_pred-self.X_val_scaled) / (np.abs(self.X_val_scaled) + 1e-10)
+                frac_err = (X_val_pred-X_val_scaled) / (np.abs(X_val_scaled) + 1e-10)
                 # Calculate the RMS fractional error
                 RMSE_val = np.sqrt(np.mean(frac_err**2))
             else:
-                RMSE_val = np.sqrt(mean_squared_error(self.X_val_scaled, X_val_pred))
+                RMSE_val = np.sqrt(mean_squared_error(X_val_scaled, X_val_pred))
 
             coeffs_list.append(coeffs)
             multi_indices_list.append(multi_indices)
             RMSE_val_list.append(RMSE_val)
 
             if RMSE_val < RMSE_tol:
+                self.backward_degree = d
                 print(f"Backward emulator generated with degree {d}, RMSE_val of {RMSE_val}.")
                 break
             if d == max_degree:
@@ -302,12 +347,38 @@ class PolyEmu():
                 ind = np.argmin(RMSE_val_list)
                 coeffs = coeffs_list[ind]
                 multi_indices = multi_indices_list[ind]
+                self.backward_degree = degree + ind
                 warning(f"Maximum degree {max_degree} reached. Returning emulator with degree {degree+ind} with RMSE_val of {RMSE_val_list[ind]}.")
 
-        def emulator(Y):
-            Y_scaled = self.scaler_Y.transform(Y)
-            X_pred_scaled = evaluate_emulator(Y_scaled, coeffs, multi_indices)
-            X_pred = self.scaler_X.inverse_transform(X_pred_scaled)
-            return X_pred
+        self.backward_coeffs = coeffs
+        self.backward_multi_indices = multi_indices
 
-        return emulator
+        pass
+
+    def backward_emulator(self, Y):
+        if Y.ndim == 1:
+            Y = Y.reshape(1, -1)
+        Y_scaled = self.scaler_Y.transform(Y)
+        X_pred_scaled = evaluate_emulator(Y_scaled, self.backward_coeffs, self.backward_multi_indices)
+        X_pred = self.scaler_X.inverse_transform(X_pred_scaled)
+        return X_pred
+
+    def generate_forward_symb_emu(self, variable_names=None):
+        exprs = symbolic_polynomial_expressions(self.forward_coeffs, 
+                                                self.forward_multi_indices, 
+                                                variable_names=variable_names, 
+                                                input_means=self.scaler_X.mean_, 
+                                                input_vars=self.scaler_X.var_,
+                                                output_means=self.scaler_Y.mean_, 
+                                                output_vars=self.scaler_Y.var_)
+        return exprs
+    
+    def generate_backward_symb_emu(self, variable_names=None):
+        exprs = symbolic_polynomial_expressions(self.backward_coeffs, 
+                                                self.backward_multi_indices, 
+                                                variable_names=variable_names, 
+                                                input_means=self.scaler_Y.mean_, 
+                                                input_vars=self.scaler_Y.var_,
+                                                output_means=self.scaler_X.mean_,
+                                                output_vars=self.scaler_X.var_)
+        return exprs

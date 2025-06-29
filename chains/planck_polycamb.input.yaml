@@ -1,0 +1,53 @@
+theory:
+  my_polycamb:
+    class: theory_polycamb.PolyCAMB
+    python_path: /Users/zzhang/Workspace/MomentEmu
+likelihood:
+  planck_2018_highl_plik.TT:
+    requires:
+      lmax: 2510
+      Cl:
+        tt: null
+params:
+  omega_b:
+    prior:
+      min: 0.019
+      max: 0.025
+    latex: \Omega_b h^2
+  omega_c:
+    prior:
+      min: 0.09
+      max: 0.15
+    latex: \Omega_c h^2
+  H0:
+    prior:
+      min: 55
+      max: 80
+    latex: H_0
+  logA:
+    prior:
+      min: 2.7
+      max: 3.2
+    latex: \ln(10^{10} A_s)
+  ns:
+    prior:
+      min: 0.88
+      max: 1.02
+    latex: n_s
+  tau:
+    prior:
+      min: 0.02
+      max: 0.12
+    ref:
+      dist: norm
+      loc: 0.054
+      scale: 0.01
+    latex: \tau
+sampler:
+  mcmc:
+    max_samples: 100000
+    Rminus1_stop: 0.02
+    proposal_scale: 0.5
+    oversample: 1.0
+    drag: false
+output: planck_polycamb

@@ -9,6 +9,16 @@ import pandas as pd
 from itertools import product
 
 
+# Define parameter bounds
+demo_bounds = {
+    'ombh2':   (0.019, 0.025),
+    'omch2':   (0.09, 0.15),
+    'H0':      (55.0, 80.0),
+    'ln_1e10_As':(2.7, 3.2),
+    'ns':      (0.88, 1.02),
+    'tau':     (0.02, 0.12)
+    }
+
 def invert_log_As(ln_1e10_As):
     """
     Invert the logarithmic scaling of the primordial amplitude.
@@ -22,7 +32,7 @@ def invert_log_As(ln_1e10_As):
     As = np.exp(ln_1e10_As) * 1e-10
     return As
 
-def sample_lcdm_params_grid(n_grid_per_param=5, return_DataFrame=False):
+def sample_lcdm_params_grid(n_grid_per_param=5, return_DataFrame=False, bound=None):
     """
     Generate a Cartesian product grid over ΛCDM parameters.
 
@@ -38,17 +48,13 @@ def sample_lcdm_params_grid(n_grid_per_param=5, return_DataFrame=False):
         param_names : list
             List of parameter names in order.
     """
-    # Parameter bounds
-    param_bounds = {
-        'ombh2':   (0.020, 0.024),
-        'omch2':   (0.10, 0.14),
-        'H0':      (60.0, 75.0),
-        'ln_1e10_As':(2.7, 3.3),
-        'ns':      (0.92, 1.00),
-        'tau':     (0.035, 0.10)
-    }
 
     param_names = list(param_bounds.keys())
+
+    if bound is not None:
+        param_bounds = bound
+    else:
+        param_bounds = demo_bounds
 
     # Create grid arrays for each parameter
     param_grids = []
@@ -76,18 +82,13 @@ def sample_lcdm_params_grid(n_grid_per_param=5, return_DataFrame=False):
     # param_names[3] = 'As'
     return grid_array, param_names
 
-def sample_lcdm_params_rand(n_samples=1000, seed=None, return_DataFrame=False, use_lhs=False):
+def sample_lcdm_params_rand(n_samples=1000, seed=None, return_DataFrame=False, use_lhs=False, bound=None):
     np.random.seed(seed)
 
-    # Define parameter bounds
-    param_bounds = {
-        'ombh2':   (0.010, 0.024),
-        'omch2':   (0.09, 0.15),
-        'H0':      (55.0, 80.0),
-        'ln_1e10_As':(2.7, 3.2),
-        'ns':      (0.88, 1.02),
-        'tau':     (0.02, 0.12)
-    }
+    if bound is not None:
+        param_bounds = bound
+    else:
+        param_bounds = demo_bounds
 
     param_names = list(param_bounds.keys())
     ndim = len(param_names)
@@ -151,7 +152,7 @@ def get_aps(theta, lmax=2000):
     return ell, totCL[:, 0]  # Return (ℓ, C_ℓ^TT)
 
 
-def generate_dataset(N, lmax=2000, ell_sampling=None, grid=True):
+def generate_dataset(N, lmax=3000, ell_sampling=None, grid=True, bound=None):
     """
     Generate a dataset of CMB power spectra using CAMB.
     Parameters:
@@ -166,10 +167,10 @@ def generate_dataset(N, lmax=2000, ell_sampling=None, grid=True):
     - ell_sampled: sampled ℓ values
     """
     if grid:
-        params = sample_lcdm_params_grid(n_grid_per_param=N, return_DataFrame=True)
+        params = sample_lcdm_params_grid(n_grid_per_param=N, return_DataFrame=True, bound=None)
         N = len(params)
     else:
-        params = sample_lcdm_params_rand(N, seed=42, return_DataFrame=True)
+        params = sample_lcdm_params_rand(N, seed=42, return_DataFrame=True, bound=None)
 
     # Optional: log-sample ℓ to reduce data dimensionality
     if ell_sampling == 'log':
@@ -262,7 +263,7 @@ def compute_aps_moments(ell, Cl, max_order=6, normalize=True):
 
     return np.array(moments)
 
-def peak_summary(D_ell_samples, n_peaks, tilt=True):
+def peak_summary(ells, D_ell_samples, n_peaks, tilt=True, fractional_height=True):
     peak_part1 = []
     peak_part2 = []
 
@@ -274,7 +275,9 @@ def peak_summary(D_ell_samples, n_peaks, tilt=True):
         if tilt:
             peak_part1.append(hei_peaks/ell_peaks)
         else:
-            peak_part1.append(hei_peaks)
+            peak_part1.append(ell_peaks)
+        if fractional_height:
+            hei_peaks[1:] /= hei_peaks[0]
         peak_part2.append(hei_peaks)
 
     peak_part1 = np.array(peak_part1)
@@ -303,6 +306,21 @@ def peak_pos_hei(peak_arr):
     Npeaks = N2//2
     peak_tilts = peak_arr[:, :Npeaks]
     peak_heights = peak_arr[:, Npeaks:]
+    for j in range(peak_heights.shape[0]):
+        peak_heights[j, 1:] *= peak_heights[j, 0]
     peak_ells = peak_heights/peak_tilts
     peak_ells = peak_ells.astype(int)
     return peak_ells, peak_heights
+
+def peak2_over_peak1(ombh2, omch2, ns):
+    om_m = ombh2 + omch2
+    numer =  0.925 * om_m ** 0.18 * 2.4 ** (ns-1) 
+    denomi = (1 + (ombh2/0.0164)**(12 * om_m**0.52))**0.2
+    return numer / denomi
+
+def peak3_over_peak1(ombh2, omch2, ns):
+    om_m = ombh2 + omch2
+    numer =  2.17 * om_m ** 0.59 * 3.6 ** (ns-1) 
+    denomi = (1 + (ombh2/0.044)**2) * ( 1 + 1.63 * (1 - ombh2 / 0.071) * om_m )
+    return numer / denomi
+
