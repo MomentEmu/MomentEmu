@@ -49,12 +49,14 @@ def sample_lcdm_params_grid(n_grid_per_param=5, return_DataFrame=False, bound=No
             List of parameter names in order.
     """
 
-    param_names = list(param_bounds.keys())
+    
 
     if bound is not None:
         param_bounds = bound
     else:
         param_bounds = demo_bounds
+    
+    param_names = list(param_bounds.keys())
 
     # Create grid arrays for each parameter
     param_grids = []
