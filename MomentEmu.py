@@ -6,7 +6,6 @@ from logging import warning
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
-from joblib import Parallel, delayed
 
 
 
@@ -19,60 +18,6 @@ def generate_multi_indices(n, d):
             alpha = [counter[i] for i in range(n)]
             indices.append(tuple(alpha))
     return indices
-
-# def evaluate_monomials(X, multi_indices, n_jobs=-1):
-#     """
-#     Evaluate monomials φ_α(X) = X^α for each sample and each multi-index α, in parallel.
-
-#     Parameters:
-#         X : array, shape (N, n)
-#             Input samples
-#         multi_indices : list of tuple, shape (D,)
-#             Multi-indices α
-#         n_jobs : int
-#             Number of parallel jobs (-1 = all cores)
-
-#     Returns:
-#         Phi : array, shape (N, D)
-#             Evaluated monomials
-#     """
-#     def _eval_alpha(alpha):
-#         return np.prod(X ** alpha, axis=1)
-    
-#     Phi_cols = Parallel(n_jobs=n_jobs, backend='threading')(
-#         delayed(_eval_alpha)(alpha) for alpha in multi_indices
-#     )
-
-#     return np.column_stack(Phi_cols)
-
-# def compute_moments_vector_output(X, Y, degree, n_jobs=-1):
-#     """
-#     Vector-valued moment method using joblib-parallelized monomial evaluation.
-
-#     Parameters:
-#         X : array, shape (N, n)
-#         Y : array, shape (N, m)
-#         degree : int, maximum total polynomial degree
-#         n_jobs : int, number of parallel jobs for monomial evaluation
-
-#     Returns:
-#         M : array, shape (D, D)
-#             Moment matrix (Gram matrix)
-#         nu : array, shape (D, m)
-#             Projected observable moments
-#         multi_indices : list of tuple
-#             All multi-indices α used
-#     """
-#     N, n = X.shape
-
-#     multi_indices = generate_multi_indices(n, degree)
-    
-#     Phi = evaluate_monomials(X, multi_indices, n_jobs=n_jobs)  # N x D (D = len(multi_indices))
-
-#     M = (Phi.T @ Phi) / N     # D x D
-#     nu = (Phi.T @ Y) / N      # D x m (m = Y.shape[1])
-
-#     return M, nu, multi_indices
 
 
 def evaluate_monomials(X, multi_indices):
@@ -187,11 +132,20 @@ def evaluate_emulator(X, coeffs, multi_indices):
 
 
 class PolyEmu():
-    def __init__(self, X, Y, X_test=None, Y_test=None, test_size=0.2, 
-                RMSE_tol=1e-2, forward=True, backward=False,
-                init_deg_forward=None, max_degree_forward=10, 
-                init_deg_backward=None, max_degree_backward=10, 
-                fractional_error=False):
+    def __init__(self, 
+                X, 
+                Y, 
+                X_test=None, 
+                Y_test=None, 
+                test_size=0.2, 
+                RMSE_tol=1e-2, 
+                forward=True, 
+                backward=False,
+                init_deg_forward=None, 
+                max_degree_forward=10, 
+                init_deg_backward=None, 
+                max_degree_backward=10, 
+                return_max_frac_err=True):
         self.n_params = X.shape[1]
         self.n_outputs = Y.shape[1]
         if X_test is None or Y_test is None:
@@ -218,8 +172,13 @@ class PolyEmu():
                                         Y_val_scaled,
                                         RMSE_tol=RMSE_tol, 
                                         init_deg=init_deg_forward, 
-                                        max_degree=max_degree_forward, 
-                                        fractional_error=fractional_error)
+                                        max_degree=max_degree_forward)
+            if return_max_frac_err:
+                Y_val_pred = self.forward_emulator(X_val)
+                max_frac_err = np.max(np.abs((Y_val_pred - Y_val) / (Y_val+1e-10)))
+                self.forward_max_frac_err = max_frac_err
+                print(f"Forward emulator maximum fractional error: {max_frac_err}")
+
         if backward:
             print("Generating backward emulator...")
             self.generate_backward_emulator(X_train_scaled, 
@@ -228,15 +187,21 @@ class PolyEmu():
                                             Y_val_scaled,
                                             RMSE_tol=RMSE_tol, 
                                             init_deg=init_deg_backward, 
-                                            max_degree=max_degree_backward, 
-                                            fractional_error=fractional_error)
+                                            max_degree=max_degree_backward)
+            if return_max_frac_err:
+                X_val_pred = self.backward_emulator(Y_val)
+                max_frac_err = np.max(np.abs((X_val_pred - X_val) / (X_val+1e-10)))
+                self.backward_max_frac_err = max_frac_err
+                print(f"Backward emulator maximum fractional error: {max_frac_err}")
 
     def generate_forward_emulator(self, 
                                   X_train_scaled, 
                                   Y_train_scaled,
                                   X_val_scaled,
                                   Y_val_scaled,
-                                  RMSE_tol=1e-3, init_deg=None, max_degree=10, fractional_error=True):
+                                  RMSE_tol=1e-3, 
+                                  init_deg=None, 
+                                  max_degree=10):
 
         if init_deg is None:
             if self.n_params > 6:
@@ -260,13 +225,7 @@ class PolyEmu():
 
             Y_val_pred = evaluate_emulator(X_val_scaled, coeffs, multi_indices)
 
-            if fractional_error:
-                # Define the RMS fractional error
-                frac_err = (Y_val_pred-Y_val_scaled) / (np.abs(Y_val_scaled) + 1e-10)
-                # Calculate the RMS fractional error
-                RMSE_val = np.sqrt(np.mean(frac_err**2))
-            else:
-                RMSE_val = np.sqrt(mean_squared_error(Y_val_scaled, Y_val_pred))
+            RMSE_val = np.sqrt(mean_squared_error(Y_val_scaled, Y_val_pred))
 
             coeffs_list.append(coeffs)
             multi_indices_list.append(multi_indices)
@@ -302,7 +261,9 @@ class PolyEmu():
                                    Y_train_scaled,
                                    X_val_scaled,
                                    Y_val_scaled,
-                                   RMSE_tol=1e-2, init_deg=None, max_degree=10, fractional_error=True):
+                                   RMSE_tol=1e-2, 
+                                   init_deg=None, 
+                                   max_degree=10):
         if init_deg is None:
             if self.n_outputs > 6:
                 degree = 1
@@ -324,15 +285,8 @@ class PolyEmu():
             coeffs = solve_emulator_coefficients(M, nu)
 
             X_val_pred = evaluate_emulator(Y_val_scaled, coeffs, multi_indices)
-            RMSE_val = np.sqrt(mean_squared_error(X_val_scaled, X_val_pred))
 
-            if fractional_error:
-                # Define the RMS fractional error
-                frac_err = (X_val_pred-X_val_scaled) / (np.abs(X_val_scaled) + 1e-10)
-                # Calculate the RMS fractional error
-                RMSE_val = np.sqrt(np.mean(frac_err**2))
-            else:
-                RMSE_val = np.sqrt(mean_squared_error(X_val_scaled, X_val_pred))
+            RMSE_val = np.sqrt(mean_squared_error(X_val_scaled, X_val_pred))
 
             coeffs_list.append(coeffs)
             multi_indices_list.append(multi_indices)

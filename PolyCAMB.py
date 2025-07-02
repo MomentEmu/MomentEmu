@@ -224,7 +224,7 @@ def find_aps_peaks(ell, Cl, smooth_sigma=1.5, height=None, distance=20):
     peak_indices, _ = find_peaks(Cl_smooth, height=height, distance=distance)
 
     ell_peaks = ell[peak_indices]
-    Cl_peaks = Cl_smooth[peak_indices]
+    Cl_peaks = Cl[peak_indices]
 
     return ell_peaks, Cl_peaks
 
@@ -271,9 +271,9 @@ def peak_summary(ells, D_ell_samples, n_peaks, tilt=True, fractional_height=True
 
     n_samples = D_ell_samples.shape[0]
     for i in tqdm(range(n_samples)):
-        ell_peaks, hei_peaks = find_aps_peaks(ells, D_ell_samples[i], smooth_sigma=1, height=None, distance=5)
-        ell_peaks = ell_peaks[1:n_peaks+1]
-        hei_peaks = hei_peaks[1:n_peaks+1]
+        ell_peaks, hei_peaks = find_aps_peaks(ells[50:], D_ell_samples[i, 50:], smooth_sigma=1, height=None, distance=2)
+        ell_peaks = ell_peaks[:n_peaks]
+        hei_peaks = hei_peaks[:n_peaks]
         if tilt:
             peak_part1.append(hei_peaks/ell_peaks)
         else:

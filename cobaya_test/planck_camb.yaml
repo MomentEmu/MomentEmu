@@ -2,7 +2,7 @@
 #  Planck 2018 TT-only inference using the MomentEmu PolyCAMB emulator
 # ===================================================================
 
-output: chains/planck_camb          # folder for chains & logs
+output: chains/planck_raw_camb          # folder for chains & logs
 debug: True                            # enable for initial runs
 
 
@@ -10,7 +10,9 @@ debug: True                            # enable for initial runs
 #  Custom theory: replaces CAMB with PolyCAMB-D_ell surrogate
 # -------------------------------------------------------------------
 theory:
-  camb:
+  my_polycamb:
+    class: theory_camb.rawCAMB
+    python_path: /Users/zzhang/Workspace/MomentEmu
     
 # -------------------------------------------------------------------
 #  Planck 2018 likelihoods (TT low-ℓ + high-ℓ)
@@ -19,7 +21,7 @@ theory:
 likelihood:
   planck_2018_highl_plik.TT:
     requires:
-      lmax: 2050
+      lmax: 2510
       Cl: {tt: null}
 
 # -------------------------------------------------------------------
@@ -27,11 +29,11 @@ likelihood:
 # -------------------------------------------------------------------
 params:
   omega_b:
-    prior: {min: 0.02, max: 0.024}
+    prior: {min: 0.019, max: 0.025}
     latex: '\Omega_b h^2'
 
   omega_c:
-    prior: {min: 0.10,  max: 0.14}
+    prior: {min: 0.09,  max: 0.15}
     latex: '\Omega_c h^2'
 
   H0:
