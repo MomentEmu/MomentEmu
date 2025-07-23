@@ -5,6 +5,14 @@ A lightweight, interpretable polynomial emulator for smooth mappings, implemente
 
 ## 📖 Overview
 
+**MomentEmu** implements the **moment-projection polynomial emulator** introduced in Zhang (2025) ([arXiv:2507.02179](https://arxiv.org/abs/2507.02179)).
+It builds interpretable, closed-form polynomial emulators via moment matrices, achieving millisecond-level inference and symbolic transparency.
+
+For a complete working example demonstrating MomentEmu applied to cosmological parameter estimation (PolyCAMB), see the companion repository: [MomentEmu-PolyCAMB-examples](https://github.com/zzhang0123/MomentEmu-PolyCAMB-examples).lightweight, interpretable polynomial emulator for smooth mappings, implemented in pure Python.
+
+
+## 📖 Overview
+
 **MomentEmu.py** implements the **moment-projection polynomial emulator** introduced in Zhang (2025) ([arXiv:2507.02179](https://arxiv.org/abs/2507.02179)).
 It builds interpretable, closed-form polynomial emulators via moment matrices, achieving millisecond-level inference and symbolic transparency. 
 
@@ -30,41 +38,51 @@ git clone https://github.com/zzhang0123/MomentEmu.git
 cd MomentEmu
 ```
 
-## 🧪 Examples
+Or install directly:
+```bash
+pip install git+https://github.com/zzhang0123/MomentEmu.git
+```
 
-- `PolyCAMB.py`: Source code for PolyCAMB-Dℓ and PolyCAMB-peak emulators.
-- `notebooks/poly_camb.ipynb`: Builds the PolyCAMB‑Dℓ emulator, as well as both forward and inverse PolyCAMB‑peak models.
+## 📋 Dependencies
 
-Below is an abstract example usage.
+- `numpy`
+- `scipy` 
+- `sympy`
+- `scikit-learn`
+
+## 🧪 Quick Start
 
 ```python
-
 from MomentEmu import PolyEmu
 
-# Define placeholder training data (shapes: X (N, n), Y (N, m))
-X = ...  # e.g., parameter samples
-Y = ...  # e.g., observable outputs
+# Define your training data
+X = ...  # Input parameters, shape (N, n)
+Y = ...  # Output observables, shape (N, m)
 
-# Emulator training and prediction
-emulator = PolyEmu(X, Y, forward=True, backward=True)    # Set backward=False for forward-only emulation
+# Create emulator with both forward and inverse capabilities
+emulator = PolyEmu(X, Y, forward=True, backward=True)
 
-# Forward-mode emulator prediction
-X_new = ...       # new input sample(s) (shape (n,) or (k, n))
+# Forward prediction: parameters → observables
+X_new = ...       # New parameter samples, shape (k, n)
 Y_pred = emulator.forward_emulator(X_new)
 
-# Backward (inverse) emulator inference
-Y_new = ...       # new output sample(s) (shape (m,) or (k, m))
+# Inverse estimation: observables → parameters  
+Y_new = ...       # New observable samples, shape (k, m)
 X_est = emulator.backward_emulator(Y_new)
 
-# Retrieve symbolic polynomial expressions for each output/input dimension
-sym_fwd = emulator.generate_forward_symb_emu(variable_names=None)
-print(sym_fwd)
-sym_bwd = emulator.generate_backward_symb_emu(variable_names=None)
-print(sym_bwd)
-
-# For a full working example with real data, see notebooks/poly_camb.ipynb
-
+# Get symbolic polynomial expressions
+forward_expressions = emulator.generate_forward_symb_emu()
+backward_expressions = emulator.generate_backward_symb_emu()
 ```
+
+## 📚 Examples & Applications
+
+For detailed examples and real-world applications, including:
+- **PolyCAMB‑Dℓ**: Cosmological parameter → CMB power spectrum emulation
+- **PolyCAMB‑peak**: Bidirectional parameter ↔ acoustic peak mapping
+- Complete Jupyter notebooks with step-by-step tutorials
+
+Visit the examples repository: **[MomentEmu-PolyCAMB-examples](https://github.com/zzhang0123/MomentEmu-PolyCAMB-examples)**
 
 ---
 
