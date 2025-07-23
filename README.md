@@ -5,7 +5,7 @@ A lightweight, interpretable polynomial emulator for smooth mappings, implemente
 
 ## 📖 Overview
 
-**MomentEmu.py** implements the **moment-projection polynomial emulator** introduced in Zhang et al. (2025) ([arXiv:2507.02179](https://arxiv.org/abs/2507.02179)).
+**MomentEmu.py** implements the **moment-projection polynomial emulator** introduced in Zhang (2025) ([arXiv:2507.02179](https://arxiv.org/abs/2507.02179)).
 
 It builds interpretable, closed-form polynomial emulators via moment matrices, achieving millisecond-level inference and symbolic transparency. Two demonstration models include:
 
