@@ -40,6 +40,8 @@ pip install git+https://github.com/zzhang0123/MomentEmu.git
 
 ## 🧪 Quick Start
 
+**Note**: Make sure to install MomentEmu first using one of the installation methods above.
+
 ```python
 from MomentEmu import PolyEmu
 
