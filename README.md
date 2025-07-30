@@ -1,48 +1,6 @@
 # MomentEmu
 
-A lightweight, interpretable polynomial emulator for smooth mappings, implemented ## 🔍 Auto-Different## 🔍 Auto-Differentiation Support
-
-**MomentEmu supports**[⚙️ Package Configuration Details](PACKAGE_CONFIG_SUMMARY.md)** - Complete information about package structure, installation options, and module integration.
-
-## 📚 Examples & Applicationstomatic differentiation** through three different frameworks, enabling gradient-based optimization, neural network integration, and exact symbolic analysis.
-
-### 📦 Modular Design
-Auto-differentiation functionality is provided through separate, optional modules:
-- `jax_momentemu.py` - JAX integration
-- `torch_momentemu.py` - PyTorch integration  
-- `symbolic_momentemu.py` - SymPy integration
-
-Install only what you need using the [flexible installation options](#🛠️-installation) above.
-
-### Available Frameworks:
-- **🚀 JAX**: High-performance computing with JIT compilation and GPU acceleration
-- **🔥 PyTorch**: Native neural network integration and ML pipeline compatibility  
-- **🔢 SymPy**: Exact symbolic differentiation with zero numerical error
-
-### Quick Example:
-```python
-# JAX implementation (requires: pip install .[jax])
-from jax_momentemu import create_jax_emulatort
-
-**MomentEmu supports automatic differentiation** through three different frameworks, enabling gradient-based optimization, neural network integration, and exact symbolic analysis.
-
-### 📦 Modular Design
-Auto-differentiation functionality is provided through separate, optional modules:
-- `jax_momentemu.py` - JAX integration
-- `torch_momentemu.py` - PyTorch integration  
-- `symbolic_momentemu.py` - SymPy integration
-
-Install only what you need using the [flexible installation options](#🛠️-installation) above.
-
-### Available Frameworks:
-- **🚀 JAX**: High-performance computing with JIT compilation and GPU acceleration
-- **🔥 PyTorch**: Native neural network integration and ML pipeline compatibility  
-- **🔢 SymPy**: Exact symbolic differentiation with zero numerical error
-
-### Quick Example:
-```python
-# JAX implementation (requires: pip install .[jax])
-from jax_momentemu import create_jax_emulatorn.
+A lightweight, interpretable polynomial emulator for smooth mappings, implemented in pure Python.
 
 
 ## 📖 Overview
@@ -135,7 +93,7 @@ forward_expressions = emulator.generate_forward_symb_emu()
 backward_expressions = emulator.generate_backward_symb_emu()
 ```
 
-## � Auto-Differentiation Support
+## Auto-Differentiation Support
 
 **MomentEmu supports automatic differentiation** through three different frameworks, enabling gradient-based optimization, neural network integration, and exact symbolic analysis:
 
