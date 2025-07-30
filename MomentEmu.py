@@ -145,7 +145,7 @@ class PolyEmu():
                 max_degree_forward=10, 
                 init_deg_backward=None, 
                 max_degree_backward=10, 
-                return_max_frac_err=True):
+                return_max_frac_err=False):
         self.n_params = X.shape[1]
         self.n_outputs = Y.shape[1]
         if X_test is None or Y_test is None:

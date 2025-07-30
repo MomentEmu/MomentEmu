@@ -81,10 +81,10 @@ Visit the examples repository: **[MomentEmu-PolyCAMB-examples](https://github.co
 MomentEmu builds:
 
 - A **moment matrix**  
-  $M_{\alpha\beta} = \frac{1}{N} \sum_{i} \theta_i^\alpha\, \theta_i^\beta$
+  $M_{\alpha\beta} = \frac{1}{N} \sum_{i} \theta_i^\alpha \theta_i^\beta$
 
 - A **moment vector**  
-  $\nu_\alpha = \frac{1}{N} \sum_{i} \theta_i^\alpha\, y_i$
+  $\nu_\alpha = \frac{1}{N} \sum_{i} \theta_i^\alpha y_i$
 
 Solving $M c = \nu$ finds polynomial coefficients $c$. No iterative optimization is needed --- model selection uses validation RMSE.  
 [Read more in the arXiv paper](https://arxiv.org/abs/2507.02179). 
