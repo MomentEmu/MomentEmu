@@ -6,13 +6,13 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name="momentemu",
     version="1.0.0",
-    author="Your Name",  # Update with your name
-    author_email="your.email@example.com",  # Update with your email
-    description="A lightweight, interpretable polynomial emulator for smooth mappings",
+    author="Zheng Zhang",  # Update with your name
+    author_email="zheng_zhang1@alumni.brown.edu",  # Update with your email
+    description="A lightweight, interpretable polynomial emulator with auto-differentiation support",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/zzhang0123/MomentEmu",
-    py_modules=["MomentEmu"],
+    py_modules=["MomentEmu", "jax_momentemu", "torch_momentemu", "symbolic_momentemu"],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
@@ -35,5 +35,11 @@ setup(
         "sympy",
         "scikit-learn",
     ],
-    keywords="emulator, polynomial, interpolation, machine-learning, scientific-computing",
+    extras_require={
+        "jax": ["jax", "jaxlib"],
+        "torch": ["torch"],
+        "autodiff": ["jax", "jaxlib", "torch"],
+        "all": ["jax", "jaxlib", "torch", "matplotlib"],
+    },
+    keywords="emulator, polynomial, interpolation, machine-learning, scientific-computing, autodiff",
 )

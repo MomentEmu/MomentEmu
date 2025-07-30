@@ -3,6 +3,14 @@
 /emulators
 /__pycache__
 
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Test files
+test_autodiff_implementations.py
+
 # Python package build artifacts
 *.egg-info/
 build/

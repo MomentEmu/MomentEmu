@@ -1,6 +1,48 @@
 # MomentEmu
 
-A lightweight, interpretable polynomial emulator for smooth mappings, implemented in pure Python.
+A lightweight, interpretable polynomial emulator for smooth mappings, implemented ## 🔍 Auto-Different## 🔍 Auto-Differentiation Support
+
+**MomentEmu supports**[⚙️ Package Configuration Details](PACKAGE_CONFIG_SUMMARY.md)** - Complete information about package structure, installation options, and module integration.
+
+## 📚 Examples & Applicationstomatic differentiation** through three different frameworks, enabling gradient-based optimization, neural network integration, and exact symbolic analysis.
+
+### 📦 Modular Design
+Auto-differentiation functionality is provided through separate, optional modules:
+- `jax_momentemu.py` - JAX integration
+- `torch_momentemu.py` - PyTorch integration  
+- `symbolic_momentemu.py` - SymPy integration
+
+Install only what you need using the [flexible installation options](#🛠️-installation) above.
+
+### Available Frameworks:
+- **🚀 JAX**: High-performance computing with JIT compilation and GPU acceleration
+- **🔥 PyTorch**: Native neural network integration and ML pipeline compatibility  
+- **🔢 SymPy**: Exact symbolic differentiation with zero numerical error
+
+### Quick Example:
+```python
+# JAX implementation (requires: pip install .[jax])
+from jax_momentemu import create_jax_emulatort
+
+**MomentEmu supports automatic differentiation** through three different frameworks, enabling gradient-based optimization, neural network integration, and exact symbolic analysis.
+
+### 📦 Modular Design
+Auto-differentiation functionality is provided through separate, optional modules:
+- `jax_momentemu.py` - JAX integration
+- `torch_momentemu.py` - PyTorch integration  
+- `symbolic_momentemu.py` - SymPy integration
+
+Install only what you need using the [flexible installation options](#🛠️-installation) above.
+
+### Available Frameworks:
+- **🚀 JAX**: High-performance computing with JIT compilation and GPU acceleration
+- **🔥 PyTorch**: Native neural network integration and ML pipeline compatibility  
+- **🔢 SymPy**: Exact symbolic differentiation with zero numerical error
+
+### Quick Example:
+```python
+# JAX implementation (requires: pip install .[jax])
+from jax_momentemu import create_jax_emulatorn.
 
 
 ## 📖 Overview
@@ -16,27 +58,55 @@ For a complete working example demonstrating MomentEmu applied to cosmological p
 - Closed-form polynomial expressions (symbolic)
 - Supports **forward** (θ → y) and **inverse** (y → θ) emulation
 - Fast training via moment matrices; near-instant inference
+- **Modular auto-differentiation support** via JAX, PyTorch, and SymPy
 - Suitable for MCMC, Bayesian inference, sensitivity analyses, and gradient-based tasks
 - Compact—no heavy model files
+- **Flexible installation** with optional dependencies for different use cases
 
 ## 🛠️ Installation
 
+### Basic Installation
+```bash
+# Core functionality only (lightweight)
+pip install git+https://github.com/zzhang0123/MomentEmu.git
+```
+
+### With Auto-Differentiation Support
+```bash
+# Core + JAX (high-performance computing)
+pip install git+https://github.com/zzhang0123/MomentEmu.git[jax]
+
+# Core + PyTorch (machine learning)
+pip install git+https://github.com/zzhang0123/MomentEmu.git[torch]
+
+# Core + all auto-differentiation frameworks
+pip install git+https://github.com/zzhang0123/MomentEmu.git[autodiff]
+
+# Everything including visualization tools
+pip install git+https://github.com/zzhang0123/MomentEmu.git[all]
+```
+
+### Development Installation
 ```bash
 git clone https://github.com/zzhang0123/MomentEmu.git
 cd MomentEmu
-```
-
-Or install directly:
-```bash
-pip install git+https://github.com/zzhang0123/MomentEmu.git
+pip install -e .[all]  # Install in development mode with all features
 ```
 
 ## 📋 Dependencies
 
+### Core Dependencies (always installed)
 - `numpy`
 - `scipy` 
 - `sympy`
 - `scikit-learn`
+
+### Optional Dependencies (install as needed)
+- **JAX**: `jax`, `jaxlib` (for high-performance auto-differentiation)
+- **PyTorch**: `torch` (for machine learning integration)  
+- **Visualization**: `matplotlib` (for plotting and analysis)
+
+**📋 Package Configuration Details**: See [PACKAGE_CONFIG_SUMMARY.md](PACKAGE_CONFIG_SUMMARY.md) for complete information about the package structure, installation options, and auto-differentiation module integration.
 
 ## 🧪 Quick Start
 
@@ -65,7 +135,45 @@ forward_expressions = emulator.generate_forward_symb_emu()
 backward_expressions = emulator.generate_backward_symb_emu()
 ```
 
-## 📚 Examples & Applications
+## � Auto-Differentiation Support
+
+**MomentEmu supports automatic differentiation** through three different frameworks, enabling gradient-based optimization, neural network integration, and exact symbolic analysis:
+
+### Available Frameworks:
+- **🚀 JAX**: High-performance computing with JIT compilation and GPU acceleration
+- **🔥 PyTorch**: Native neural network integration and ML pipeline compatibility  
+- **🔢 SymPy**: Exact symbolic differentiation with zero numerical error
+
+### Quick Example:
+```python
+# JAX implementation
+from jax_momentemu import create_jax_emulator
+import jax.numpy as jnp
+from jax import grad
+
+# Convert trained emulator to JAX
+jax_emu = create_jax_emulator(emulator)
+
+# Compute gradients automatically
+x = jnp.array([0.5, 0.3])
+y = jax_emu(x)
+gradient = grad(lambda x: jax_emu(x).sum())(x)
+```
+
+### 📖 Complete Auto-Differentiation Guide
+For comprehensive documentation, performance comparisons, usage examples, and integration guidelines, see:
+
+**[📋 AUTODIFF_GUIDE.md](AUTODIFF_GUIDE.md)**
+
+The guide covers:
+- Detailed usage for each framework (JAX, PyTorch, SymPy)
+- Performance benchmarks and framework comparison
+- Integration guidelines for different use cases
+- Complete testing suite and troubleshooting tips
+
+**[⚙️ Package Configuration Details](PACKAGE_CONFIG_SUMMARY.md)** - Complete information about package structure, installation options, and module integration.
+
+## �📚 Examples & Applications
 
 For detailed examples and real-world applications, including:
 - **PolyCAMB‑Dℓ**: Cosmological parameter → CMB power spectrum emulation
