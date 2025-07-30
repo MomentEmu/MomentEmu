@@ -177,7 +177,7 @@ class PolyEmu():
                 Y_val_pred = self.forward_emulator(X_val)
                 max_frac_err = np.max(np.abs((Y_val_pred - Y_val) / (Y_val+1e-10)))
                 self.forward_max_frac_err = max_frac_err
-                print(f"Forward emulator maximum fractional error: {max_frac_err}")
+                print(f"Forward emulator maximum fractional error: {max_frac_err}. (If the true value is close to 0, this value could be extremely large. This is fine.)")
 
         if backward:
             print("Generating backward emulator...")
@@ -192,7 +192,7 @@ class PolyEmu():
                 X_val_pred = self.backward_emulator(Y_val)
                 max_frac_err = np.max(np.abs((X_val_pred - X_val) / (X_val+1e-10)))
                 self.backward_max_frac_err = max_frac_err
-                print(f"Backward emulator maximum fractional error: {max_frac_err}")
+                print(f"Backward emulator maximum fractional error: {max_frac_err}. (If the true value is close to 0, this value could be extremely large. This is fine.)")
 
     def generate_forward_emulator(self, 
                                   X_train_scaled, 
