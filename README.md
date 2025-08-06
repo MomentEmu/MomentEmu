@@ -131,7 +131,7 @@ The guide covers:
 
 **[⚙️ Package Configuration Details](PACKAGE_CONFIG_SUMMARY.md)** - Complete information about package structure, installation options, and module integration.
 
-## �📚 Examples & Applications
+## 📚 Examples & Applications
 
 For detailed examples and real-world applications, including:
 - **PolyCAMB‑Dℓ**: Cosmological parameter → CMB power spectrum emulation
@@ -154,5 +154,30 @@ MomentEmu builds:
 
 Solving $M c = \nu$ finds polynomial coefficients $c$. No iterative optimization is needed --- model selection uses validation RMSE.  
 [Read more in the arXiv paper](https://arxiv.org/abs/2507.02179). 
+
+
+---
+---
+
+### Appendix: Derivative Errors in Polynomial Approximations
+
+When a smooth function $f$ is approximated by a polynomial $P_n$ of degree $n$, the error in the approximation of its derivatives generally amplifies with the derivative order. If the function is fitted to a uniform accuracy $\|f - P_n\|_\infty \leq \delta $, then the worst-case error in the $r$-th derivative satisfies the bound
+$$
+\|f^{(r)} - P_n^{(r)}\|_\infty \lesssim n^r \cdot \delta,
+$$
+reflecting the fact that differentiation acts as a numerically unstable operator in the space of polynomials. This growth arises from Bernstein-type inequalities and classical results in approximation theory, such as Jackson’s theorem. Thus, while polynomial emulation can be highly accurate for the function itself, care must be taken when using it to infer high-order derivatives, especially for large $n$ or high $r$, as derivative estimates can become significantly less accurate even when the original approximation error is small.
+
+---
+
+### 📚 References
+
+1. **Timothy J. Rivlin**, *An Introduction to the Approximation of Functions*  
+   – Classic and accessible introduction. See Chapter 4–5 on uniform polynomial approximation and error estimates.
+
+2. **E. W. Cheney**, *Introduction to Approximation Theory*  
+   – Comprehensive, rigorous treatment. Bernstein and Jackson inequalities are covered in detail.
+
+3. **L. N. Trefethen**, *Spectral Methods in MATLAB*  
+   – Discusses how polynomial interpolation and spectral approximations behave under differentiation; very readable with practical insights.
 
 
