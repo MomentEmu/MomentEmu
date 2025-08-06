@@ -78,7 +78,12 @@ X = ...  # Input parameters, shape (N, n)
 Y = ...  # Output observables, shape (N, m)
 
 # Create emulator with both forward and inverse capabilities
-emulator = PolyEmu(X, Y, forward=True, backward=True)
+emulator = PolyEmu(X, Y, 
+                   forward=True,              # Enable forward emulation: parameters → observables
+                   max_degree_forward=10,     # Max polynomial degree for forward mapping (lower for high-dimensional problems)
+                   backward=True,             # Enable inverse emulation: observables → parameters (requires non-degenerate mapping)
+                   max_degree_backward=3,     # Max polynomial degree for inverse mapping (lower for high-dimensional problems)
+                   )
 
 # Forward prediction: parameters → observables
 X_new = ...       # New parameter samples, shape (k, n)
