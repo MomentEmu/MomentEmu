@@ -229,5 +229,5 @@ The test results confirm:
 ## Next Steps
 
 - Explore [Use Cases](../examples/use-cases.md) for real-world applications
-- See [Performance Benchmarks](../examples/benchmarks.md) for detailed comparisons
 - Check [API Reference](../api/core.md) for complete function documentation
+- Review [Mathematical Background](../theory/mathematical-background.md) for theoretical foundations

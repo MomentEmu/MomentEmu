@@ -265,6 +265,6 @@ git push origin v1.1.0
 
 ## Next Steps
 
-- Read [Contributing Guidelines](development.md)
-- Explore [Testing Framework](testing.md)
-- Review [Release Process](release-process.md)
+- Read [Package Configuration](../contributing/package-config.md) for package details
+- Review [Documentation Setup](../contributing/documentation-setup.md) for docs contribution
+- Check [Auto-Differentiation Guide](../tutorials/autodiff-guide.md) for testing different frameworks

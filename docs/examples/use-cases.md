@@ -237,6 +237,6 @@ For typical scientific applications:
 
 ## Next Steps
 
-- Explore [Performance Benchmarks](benchmarks.md) for detailed comparisons
-- Check [External Examples](polycamb.md) for PolyCAMB integration
 - See [Tutorials](../tutorials/getting-started.md) for step-by-step guides
+- Check [Auto-Differentiation Guide](../tutorials/autodiff-guide.md) for framework integration
+- Visit [PolyCAMB Examples](https://github.com/MomentEmu/MomentEmu-PolyCAMB-examples) for cosmological applications

@@ -139,10 +139,10 @@ print(f"Recovery error: {np.mean(np.abs(X_test[:5] - X_inverse)):.6f}")
 
 ## Next Steps
 
-- Learn about [Forward Emulation](forward-emulation.md) in detail
-- Explore [Inverse Emulation](inverse-emulation.md) capabilities  
 - Try [Auto-Differentiation](autodiff-guide.md) for gradient-based applications
 - See [Use Cases](../examples/use-cases.md) for real-world applications
+- Review [Mathematical Background](../theory/mathematical-background.md) for theoretical understanding
+- Check [API Reference](../api/core.md) for complete function documentation
 
 ## Common Issues
 
