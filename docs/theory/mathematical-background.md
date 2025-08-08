@@ -158,7 +158,7 @@ where $|\mathcal{A}_d| = \binom{n+d}{d}$ (number of multi-indices).
 2. **Numerical Linear Algebra**: Matrix conditioning, regularization
 3. **Polynomial Interpolation**: Vandermonde matrices, basis functions
 4. **Moment Methods**: Method of moments in statistics
-5. **Symbolic Regression**: Koza (1992) "Genetic Programming"; Schmidt & Lipson (2009) "Distilling Free-Form Natural Laws"
+
 
 The mathematical foundation ensures that MomentEmu provides:
 - ✅ **Theoretical soundness**
