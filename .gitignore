@@ -17,6 +17,9 @@ build/
 dist/
 *.egg
 
+# Documentation build
+site/
+
 # PyCache
 __pycache__/
 *.py[cod]
