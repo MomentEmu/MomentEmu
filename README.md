@@ -8,7 +8,7 @@ A lightweight, interpretable polynomial emulator for smooth mappings, implemente
 **MomentEmu** implements the **moment-projection polynomial emulator** introduced in Zhang (2025) ([arXiv:2507.02179](https://arxiv.org/abs/2507.02179)).
 It builds interpretable, closed-form polynomial emulators via moment matrices, achieving millisecond-level inference and symbolic transparency.
 
-For a complete working example demonstrating MomentEmu applied to cosmological parameter estimation (PolyCAMB), see the companion repository: [MomentEmu-PolyCAMB-examples](https://github.com/zzhang0123/MomentEmu-PolyCAMB-examples).
+For a complete working example demonstrating MomentEmu applied to cosmological parameter estimation (PolyCAMB), see the companion repository: [MomentEmu-PolyCAMB-examples](https://github.com/MomentEmu/MomentEmu-PolyCAMB-examples).
 
 ## 🚀 Features
 
@@ -26,29 +26,29 @@ For a complete working example demonstrating MomentEmu applied to cosmological p
 ### Basic Installation
 ```bash
 # Core functionality only (lightweight)
-pip install git+https://github.com/zzhang0123/MomentEmu.git
+pip install git+https://github.com/MomentEmu/MomentEmu.git
 ```
 
 ### With Auto-Differentiation Support
 ```bash
 # Core + JAX (high-performance computing)
-pip install "git+https://github.com/zzhang0123/MomentEmu.git[jax]"
+pip install "git+https://github.com/MomentEmu/MomentEmu.git[jax]"
 
 # Core + PyTorch (machine learning)
-pip install "git+https://github.com/zzhang0123/MomentEmu.git[torch]"
+pip install "git+https://github.com/MomentEmu/MomentEmu.git[torch]"
 
 # Core + all auto-differentiation frameworks
-pip install "git+https://github.com/zzhang0123/MomentEmu.git[autodiff]"
+pip install "git+https://github.com/MomentEmu/MomentEmu.git[autodiff]"
 
 # Everything including visualization tools
-pip install "git+https://github.com/zzhang0123/MomentEmu.git[all]"
+pip install "git+https://github.com/MomentEmu/MomentEmu.git[all]"
 ```
 
 ### Development Installation
 ```bash
-git clone https://github.com/zzhang0123/MomentEmu.git
+git clone https://github.com/MomentEmu/MomentEmu.git
 cd MomentEmu
-pip install -e .[all]  # Install in development mode with all features
+pip install -e '.[all]'  # Install in development mode with all features
 ```
 
 ## 📋 Dependencies
@@ -143,7 +143,7 @@ For detailed examples and real-world applications, including:
 - **PolyCAMB‑peak**: Bidirectional parameter ↔ acoustic peak mapping
 - Complete Jupyter notebooks with step-by-step tutorials
 
-Visit the examples repository: **[MomentEmu-PolyCAMB-examples](https://github.com/zzhang0123/MomentEmu-PolyCAMB-examples)**
+Visit the examples repository: **[MomentEmu-PolyCAMB-examples](https://github.com/MomentEmu/MomentEmu-PolyCAMB-examples)**
 
 ---
 

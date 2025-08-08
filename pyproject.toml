@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "MomentEmu"
+version = "1.0.0"
+description = "A lightweight, interpretable polynomial emulator with auto-differentiation support"
+authors = [ { name = "Zheng Zhang", email = "zheng_zhang1@alumni.brown.edu" } ]
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.7"
+dependencies = [
+	"numpy",
+	"scipy",
+	"sympy",
+	"scikit-learn"
+]
+keywords = ["emulator", "polynomial", "interpolation", "machine-learning", "scientific-computing", "autodiff"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+[project.urls]
+Homepage = "https://github.com/MomentEmu/MomentEmu"
+Repository = "https://github.com/MomentEmu/MomentEmu"
+Documentation = "https://github.com/MomentEmu/MomentEmu#readme"
+"Bug Tracker" = "https://github.com/MomentEmu/MomentEmu/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.optional-dependencies]
+jax = ["jax", "jaxlib"]
+torch = ["torch"]
+autodiff = ["jax", "jaxlib", "torch"]
+all = ["jax", "jaxlib", "torch", "matplotlib"]
