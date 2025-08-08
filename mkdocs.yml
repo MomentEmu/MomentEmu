@@ -93,4 +93,6 @@ nav:
   - Contributing:
     - Development Guide: contributing/development.md
     - Testing: contributing/testing.md
+    - Package Configuration: contributing/package-config.md
+    - Documentation Setup: contributing/documentation-setup.md
     - Release Process: contributing/release-process.md

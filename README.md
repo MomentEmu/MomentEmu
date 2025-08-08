@@ -135,17 +135,13 @@ gradient = grad(lambda x: jax_emu(x).sum())(x)
 - **[Use Cases](https://zzhang0123.github.io/MomentEmu/examples/use-cases/)** - Real-world applications
 
 ### 📖 Complete Auto-Differentiation Guide
-For comprehensive documentation, performance comparisons, usage examples, and integration guidelines, see:
-
-**[📋 AUTODIFF_GUIDE.md](AUTODIFF_GUIDE.md)**
+For comprehensive documentation, performance comparisons, usage examples, and integration guidelines, see the **[Auto-Differentiation Guide](https://zzhang0123.github.io/MomentEmu/tutorials/autodiff-guide/)** in the full documentation.
 
 The guide covers:
 - Detailed usage for each framework (JAX, PyTorch, SymPy)
 - Performance benchmarks and framework comparison
 - Integration guidelines for different use cases
 - Complete testing suite and troubleshooting tips
-
-**[⚙️ Package Configuration Details](PACKAGE_CONFIG_SUMMARY.md)** - Complete information about package structure, installation options, and module integration.
 
 ## 📚 Examples & Applications
 
