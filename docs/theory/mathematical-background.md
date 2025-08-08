@@ -127,12 +127,38 @@ where $|\mathcal{A}_d| = \binom{n+d}{d}$ (number of multi-indices).
 - **NN**: Black box, requires iterative training
 - **MomentEmu**: Interpretable, direct solution
 
+### vs. Symbolic Regression
+- **Symbolic Regression**: Discovers arbitrary mathematical expressions through evolutionary/genetic algorithms
+- **MomentEmu**: Uses predetermined polynomial basis with direct analytical solution
+
+| Aspect | Symbolic Regression | MomentEmu |
+|--------|-------------------|-----------|
+| **Expression Form** | Arbitrary (sin, exp, log, etc.) | Polynomial only |
+| **Discovery Method** | Evolutionary search | Direct moment projection |
+| **Training Time** | Hours to days | Seconds to minutes |
+| **Interpretability** | Variable (can be complex) | Always polynomial |
+| **Reproducibility** | Stochastic results | Deterministic |
+| **Scalability** | Limited by search space | Scales with polynomial degree |
+| **Overfitting Control** | Complexity penalties | Degree selection + validation |
+
+**When to choose Symbolic Regression:**
+- Unknown functional form with potential transcendental functions
+- Small datasets where search time is acceptable
+- Need for discovering fundamental physical laws
+
+**When to choose MomentEmu:**
+- Smooth mappings that can be well-approximated by polynomials
+- Need for fast, reproducible training
+- Large datasets requiring computational efficiency
+- Applications requiring guaranteed polynomial interpretability
+
 ## Mathematical References
 
 1. **Approximation Theory**: Jackson's theorem, Weierstrass approximation
 2. **Numerical Linear Algebra**: Matrix conditioning, regularization
 3. **Polynomial Interpolation**: Vandermonde matrices, basis functions
 4. **Moment Methods**: Method of moments in statistics
+5. **Symbolic Regression**: Koza (1992) "Genetic Programming"; Schmidt & Lipson (2009) "Distilling Free-Form Natural Laws"
 
 The mathematical foundation ensures that MomentEmu provides:
 - ✅ **Theoretical soundness**
