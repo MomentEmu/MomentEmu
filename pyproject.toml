@@ -35,10 +35,10 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/MomentEmu/MomentEmu"
-Repository = "https://github.com/MomentEmu/MomentEmu"
-Documentation = "https://github.com/MomentEmu/MomentEmu#readme"
-"Bug Tracker" = "https://github.com/MomentEmu/MomentEmu/issues"
+Homepage = "https://github.com/zzhang0123/MomentEmu"
+Repository = "https://github.com/zzhang0123/MomentEmu"
+Documentation = "https://zzhang0123.github.io/MomentEmu/"
+"Bug Tracker" = "https://github.com/zzhang0123/MomentEmu/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -48,3 +48,5 @@ jax = ["jax", "jaxlib"]
 torch = ["torch"]
 autodiff = ["jax", "jaxlib", "torch"]
 all = ["jax", "jaxlib", "torch", "matplotlib"]
+docs = ["mkdocs", "mkdocs-material", "mkdocstrings[python]", "pymdown-extensions"]
+dev = ["pytest", "pytest-cov", "black", "isort", "flake8", "mypy", "pre-commit"]

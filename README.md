@@ -123,6 +123,17 @@ y = jax_emu(x)
 gradient = grad(lambda x: jax_emu(x).sum())(x)
 ```
 
+## 📖 Documentation
+
+**Complete documentation is available at: [https://zzhang0123.github.io/MomentEmu/](https://zzhang0123.github.io/MomentEmu/)**
+
+### Quick Links
+- **[Installation Guide](https://zzhang0123.github.io/MomentEmu/installation/quick-start/)** - Get started quickly
+- **[Getting Started Tutorial](https://zzhang0123.github.io/MomentEmu/tutorials/getting-started/)** - Step-by-step walkthrough  
+- **[Auto-Differentiation Guide](https://zzhang0123.github.io/MomentEmu/tutorials/autodiff-guide/)** - JAX, PyTorch, SymPy integration
+- **[API Reference](https://zzhang0123.github.io/MomentEmu/api/core/)** - Complete function documentation
+- **[Use Cases](https://zzhang0123.github.io/MomentEmu/examples/use-cases/)** - Real-world applications
+
 ### 📖 Complete Auto-Differentiation Guide
 For comprehensive documentation, performance comparisons, usage examples, and integration guidelines, see:
 

@@ -1,0 +1,2049 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A lightweight, interpretable polynomial emulator with auto-differentiation support">
+      
+      
+        <meta name="author" content="Zheng Zhang">
+      
+      
+        <link rel="canonical" href="https://zzhang0123.github.io/MomentEmu/theory/mathematical-background/">
+      
+      
+        <link rel="prev" href="../../api/symbolic/">
+      
+      
+        <link rel="next" href="../../examples/use-cases/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+    
+    
+      
+        <title>Mathematical Background - MomentEmu Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mathematical-background" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="MomentEmu Documentation" class="md-header__button md-logo" aria-label="MomentEmu Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MomentEmu Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Mathematical Background
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/zzhang0123/MomentEmu" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    zzhang0123/MomentEmu
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../installation/quick-start/" class="md-tabs__link">
+          
+  
+  
+  Installation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/getting-started/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/core/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Theory
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../examples/use-cases/" class="md-tabs__link">
+          
+  
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/development.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="MomentEmu Documentation" class="md-nav__button md-logo" aria-label="MomentEmu Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MomentEmu Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/zzhang0123/MomentEmu" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    zzhang0123/MomentEmu
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Installation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/autodiff/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Auto-Differentiation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Development Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/forward-emulation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Forward Emulation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/inverse-emulation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Inverse Emulation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/autodiff-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Auto-Differentiation Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Core Module
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/jax/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    JAX Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/torch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PyTorch Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/symbolic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SymPy Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Theory
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Theory
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Mathematical Background
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Mathematical Background
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#core-concept" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core Concept
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-moment-projection-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Moment-Projection Method
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Moment-Projection Method">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#problem-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problem Setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polynomial-basis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Polynomial Basis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#moment-matrix-construction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Moment Matrix Construction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#moment-vector-construction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Moment Vector Construction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linear-system-solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      Linear System Solution
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#final-polynomial" class="md-nav__link">
+    <span class="md-ellipsis">
+      Final Polynomial
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-advantages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Advantages
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Advantages">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-non-iterative-training" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Non-Iterative Training
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-interpretable-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Interpretable Results
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-fast-inference" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Fast Inference
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-theoretical-guarantees" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Theoretical Guarantees
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bidirectional-emulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bidirectional Emulation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bidirectional Emulation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#forward-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Forward Mapping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inverse-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inverse Mapping
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#computational-complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computational Complexity
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Computational Complexity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#training-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Training Time
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inference-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inference Time
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#numerical-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Numerical Considerations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Numerical Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#conditioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conditioning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#degree-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Degree Selection
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship-to-other-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Relationship to Other Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Relationship to Other Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vs-polynomial-regression" class="md-nav__link">
+    <span class="md-ellipsis">
+      vs. Polynomial Regression
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vs-gaussian-processes" class="md-nav__link">
+    <span class="md-ellipsis">
+      vs. Gaussian Processes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vs-neural-networks" class="md-nav__link">
+    <span class="md-ellipsis">
+      vs. Neural Networks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mathematical-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mathematical References
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../moment-matrices.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Moment Matrices
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../polynomial-approximation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Polynomial Approximation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/use-cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Use Cases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/benchmarks.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance Benchmarks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/polycamb.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    External Examples
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Contributing
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Contributing
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/development.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Development Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Testing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/release-process.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Release Process
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#core-concept" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core Concept
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-moment-projection-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Moment-Projection Method
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Moment-Projection Method">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#problem-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problem Setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polynomial-basis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Polynomial Basis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#moment-matrix-construction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Moment Matrix Construction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#moment-vector-construction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Moment Vector Construction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linear-system-solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      Linear System Solution
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#final-polynomial" class="md-nav__link">
+    <span class="md-ellipsis">
+      Final Polynomial
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-advantages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Advantages
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Advantages">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-non-iterative-training" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Non-Iterative Training
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-interpretable-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Interpretable Results
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-fast-inference" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Fast Inference
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-theoretical-guarantees" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Theoretical Guarantees
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bidirectional-emulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bidirectional Emulation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bidirectional Emulation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#forward-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Forward Mapping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inverse-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inverse Mapping
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#computational-complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computational Complexity
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Computational Complexity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#training-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Training Time
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inference-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inference Time
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#numerical-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Numerical Considerations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Numerical Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#conditioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conditioning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#degree-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Degree Selection
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship-to-other-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Relationship to Other Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Relationship to Other Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vs-polynomial-regression" class="md-nav__link">
+    <span class="md-ellipsis">
+      vs. Polynomial Regression
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vs-gaussian-processes" class="md-nav__link">
+    <span class="md-ellipsis">
+      vs. Gaussian Processes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vs-neural-networks" class="md-nav__link">
+    <span class="md-ellipsis">
+      vs. Neural Networks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mathematical-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mathematical References
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/zzhang0123/MomentEmu/edit/main/docs/theory/mathematical-background.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="mathematical-background">Mathematical Background<a class="headerlink" href="#mathematical-background" title="Permanent link">&para;</a></h1>
+<p>Understanding the mathematical foundations of MomentEmu's polynomial emulation approach.</p>
+<h2 id="core-concept">Core Concept<a class="headerlink" href="#core-concept" title="Permanent link">&para;</a></h2>
+<p>MomentEmu builds polynomial emulators by solving a <strong>linear system</strong> derived from moment matrices, avoiding iterative optimization entirely.</p>
+<h2 id="the-moment-projection-method">The Moment-Projection Method<a class="headerlink" href="#the-moment-projection-method" title="Permanent link">&para;</a></h2>
+<h3 id="problem-setup">Problem Setup<a class="headerlink" href="#problem-setup" title="Permanent link">&para;</a></h3>
+<p>Given training data <span class="arithmatex">\(\{(\theta_i, y_i)\}_{i=1}^N\)</span> where:
+- <span class="arithmatex">\(\theta_i \in \mathbb{R}^n\)</span> are input parameters
+- <span class="arithmatex">\(y_i \in \mathbb{R}^m\)</span> are output observables</p>
+<p>We want to find a polynomial mapping <span class="arithmatex">\(P: \mathbb{R}^n \to \mathbb{R}^m\)</span> such that:
+<span class="arithmatex">\(<span class="arithmatex">\(P(\theta_i) \approx y_i \quad \text{for all } i\)</span>\)</span></p>
+<h3 id="polynomial-basis">Polynomial Basis<a class="headerlink" href="#polynomial-basis" title="Permanent link">&para;</a></h3>
+<p>For a given maximum degree <span class="arithmatex">\(d\)</span>, we construct a polynomial basis using <strong>multi-indices</strong>:
+<span class="arithmatex">\(<span class="arithmatex">\(\{\theta^{\alpha} : \alpha \in \mathcal{A}_d\}\)</span>\)</span></p>
+<p>where <span class="arithmatex">\(\mathcal{A}_d = \{\alpha \in \mathbb{N}_0^n : |\alpha| \leq d\}\)</span> and <span class="arithmatex">\(\theta^{\alpha} = \prod_{j=1}^n \theta_j^{\alpha_j}\)</span>.</p>
+<div class="admonition example">
+<p class="admonition-title">Example: 2D quadratic basis</p>
+<p>For <span class="arithmatex">\(n=2, d=2\)</span>: <span class="arithmatex">\(\{1, \theta_1, \theta_2, \theta_1^2, \theta_1\theta_2, \theta_2^2\}\)</span></p>
+</div>
+<h3 id="moment-matrix-construction">Moment Matrix Construction<a class="headerlink" href="#moment-matrix-construction" title="Permanent link">&para;</a></h3>
+<p>The <strong>moment matrix</strong> <span class="arithmatex">\(M \in \mathbb{R}^{|\mathcal{A}_d| \times |\mathcal{A}_d|}\)</span> is defined as:
+<span class="arithmatex">\(<span class="arithmatex">\(M_{\alpha\beta} = \frac{1}{N} \sum_{i=1}^N \theta_i^{\alpha} \theta_i^{\beta}\)</span>\)</span></p>
+<p>This captures the correlations between all polynomial basis functions.</p>
+<h3 id="moment-vector-construction">Moment Vector Construction<a class="headerlink" href="#moment-vector-construction" title="Permanent link">&para;</a></h3>
+<p>For each output dimension <span class="arithmatex">\(j\)</span>, the <strong>moment vector</strong> <span class="arithmatex">\(\nu^{(j)} \in \mathbb{R}^{|\mathcal{A}_d|}\)</span> is:
+<span class="arithmatex">\(<span class="arithmatex">\(\nu^{(j)}_{\alpha} = \frac{1}{N} \sum_{i=1}^N \theta_i^{\alpha} y_i^{(j)}\)</span>\)</span></p>
+<p>This represents the correlation between basis functions and output values.</p>
+<h3 id="linear-system-solution">Linear System Solution<a class="headerlink" href="#linear-system-solution" title="Permanent link">&para;</a></h3>
+<p>The polynomial coefficients <span class="arithmatex">\(c^{(j)}\)</span> for output dimension <span class="arithmatex">\(j\)</span> are found by solving:
+<span class="arithmatex">\(<span class="arithmatex">\(M c^{(j)} = \nu^{(j)}\)</span>\)</span></p>
+<p>This is a <strong>linear system</strong> - no iterative optimization required!</p>
+<h3 id="final-polynomial">Final Polynomial<a class="headerlink" href="#final-polynomial" title="Permanent link">&para;</a></h3>
+<p>The resulting polynomial emulator is:
+<span class="arithmatex">\(<span class="arithmatex">\(P^{(j)}(\theta) = \sum_{\alpha \in \mathcal{A}_d} c^{(j)}_{\alpha} \theta^{\alpha}\)</span>\)</span></p>
+<h2 id="key-advantages">Key Advantages<a class="headerlink" href="#key-advantages" title="Permanent link">&para;</a></h2>
+<h3 id="1-non-iterative-training">1. Non-Iterative Training<a class="headerlink" href="#1-non-iterative-training" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Traditional ML</strong>: Requires gradient descent, backpropagation, hyperparameter tuning</li>
+<li><strong>MomentEmu</strong>: Direct linear algebra solution</li>
+</ul>
+<h3 id="2-interpretable-results">2. Interpretable Results<a class="headerlink" href="#2-interpretable-results" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Coefficients have clear mathematical meaning</li>
+<li>Symbolic expressions available</li>
+<li>Easy to analyze polynomial structure</li>
+</ul>
+<h3 id="3-fast-inference">3. Fast Inference<a class="headerlink" href="#3-fast-inference" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Simple polynomial evaluation</li>
+<li>No complex model architecture</li>
+<li>Vectorizable operations</li>
+</ul>
+<h3 id="4-theoretical-guarantees">4. Theoretical Guarantees<a class="headerlink" href="#4-theoretical-guarantees" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Well-conditioned for appropriate data scaling</li>
+<li>Unique solution (when <span class="arithmatex">\(M\)</span> is invertible)</li>
+<li>Convergence properties from approximation theory</li>
+</ul>
+<h2 id="bidirectional-emulation">Bidirectional Emulation<a class="headerlink" href="#bidirectional-emulation" title="Permanent link">&para;</a></h2>
+<h3 id="forward-mapping">Forward Mapping<a class="headerlink" href="#forward-mapping" title="Permanent link">&para;</a></h3>
+<p>Standard case: <span class="arithmatex">\(\theta \to y\)</span>
+<span class="arithmatex">\(<span class="arithmatex">\(y = P_{\text{forward}}(\theta)\)</span>\)</span></p>
+<h3 id="inverse-mapping">Inverse Mapping<a class="headerlink" href="#inverse-mapping" title="Permanent link">&para;</a></h3>
+<p>For invertible relationships: <span class="arithmatex">\(y \to \theta\)</span>
+<span class="arithmatex">\(<span class="arithmatex">\(\theta = P_{\text{backward}}(y)\)</span>\)</span></p>
+<p>MomentEmu constructs separate moment matrices for each direction:
+- <strong>Forward</strong>: <span class="arithmatex">\(M^{(\theta)}_{\alpha\beta} = \frac{1}{N} \sum_i \theta_i^{\alpha} \theta_i^{\beta}\)</span>
+- <strong>Backward</strong>: <span class="arithmatex">\(M^{(y)}_{\alpha\beta} = \frac{1}{N} \sum_i y_i^{\alpha} y_i^{\beta}\)</span></p>
+<h2 id="computational-complexity">Computational Complexity<a class="headerlink" href="#computational-complexity" title="Permanent link">&para;</a></h2>
+<h3 id="training-time">Training Time<a class="headerlink" href="#training-time" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Moment matrix</strong>: <span class="arithmatex">\(O(N \cdot |\mathcal{A}_d|^2)\)</span></li>
+<li><strong>Linear solve</strong>: <span class="arithmatex">\(O(|\mathcal{A}_d|^3)\)</span></li>
+<li><strong>Total</strong>: <span class="arithmatex">\(O(N \cdot |\mathcal{A}_d|^2 + |\mathcal{A}_d|^3)\)</span></li>
+</ul>
+<p>where <span class="arithmatex">\(|\mathcal{A}_d| = \binom{n+d}{d}\)</span> (number of multi-indices).</p>
+<h3 id="inference-time">Inference Time<a class="headerlink" href="#inference-time" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Polynomial evaluation</strong>: <span class="arithmatex">\(O(|\mathcal{A}_d|)\)</span></li>
+<li><strong>Extremely fast</strong> for inference</li>
+</ul>
+<h2 id="numerical-considerations">Numerical Considerations<a class="headerlink" href="#numerical-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="conditioning">Conditioning<a class="headerlink" href="#conditioning" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Raw data</strong>: Can lead to ill-conditioned moment matrices</li>
+<li><strong>Scaled data</strong>: Standardization improves conditioning significantly</li>
+<li><strong>Regularization</strong>: Ridge regression for ill-conditioned cases</li>
+</ul>
+<h3 id="degree-selection">Degree Selection<a class="headerlink" href="#degree-selection" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Trade-off</strong>: Higher degree → better fit but more coefficients</li>
+<li><strong>Rule of thumb</strong>: <span class="arithmatex">\(N \geq 10 \cdot |\mathcal{A}_d|\)</span> (samples per coefficient)</li>
+<li><strong>Validation</strong>: Use held-out data to select optimal degree</li>
+</ul>
+<h2 id="relationship-to-other-methods">Relationship to Other Methods<a class="headerlink" href="#relationship-to-other-methods" title="Permanent link">&para;</a></h2>
+<h3 id="vs-polynomial-regression">vs. Polynomial Regression<a class="headerlink" href="#vs-polynomial-regression" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Standard</strong>: Uses least-squares fitting</li>
+<li><strong>MomentEmu</strong>: Uses moment-based approach with better numerical properties</li>
+</ul>
+<h3 id="vs-gaussian-processes">vs. Gaussian Processes<a class="headerlink" href="#vs-gaussian-processes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>GP</strong>: Probabilistic, kernel-based, scales as <span class="arithmatex">\(O(N^3)\)</span></li>
+<li><strong>MomentEmu</strong>: Deterministic, polynomial, scales better with data size</li>
+</ul>
+<h3 id="vs-neural-networks">vs. Neural Networks<a class="headerlink" href="#vs-neural-networks" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>NN</strong>: Black box, requires iterative training</li>
+<li><strong>MomentEmu</strong>: Interpretable, direct solution</li>
+</ul>
+<h2 id="mathematical-references">Mathematical References<a class="headerlink" href="#mathematical-references" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Approximation Theory</strong>: Jackson's theorem, Weierstrass approximation</li>
+<li><strong>Numerical Linear Algebra</strong>: Matrix conditioning, regularization</li>
+<li><strong>Polynomial Interpolation</strong>: Vandermonde matrices, basis functions</li>
+<li><strong>Moment Methods</strong>: Method of moments in statistics</li>
+</ol>
+<p>The mathematical foundation ensures that MomentEmu provides:
+- ✅ <strong>Theoretical soundness</strong>
+- ✅ <strong>Computational efficiency</strong> 
+- ✅ <strong>Interpretable results</strong>
+- ✅ <strong>Practical applicability</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "search.share", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.50899def.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
