@@ -8,6 +8,8 @@ A lightweight, interpretable polynomial emulator for smooth mappings, implemente
 **MomentEmu** implements the **moment-projection polynomial emulator** introduced in Zhang (2025) ([arXiv:2507.02179](https://arxiv.org/abs/2507.02179)).
 It builds interpretable, closed-form polynomial emulators via moment matrices, achieving millisecond-level inference and symbolic transparency.
 
+**📖 Complete documentation:** [https://zzhang0123.github.io/MomentEmu/](https://zzhang0123.github.io/MomentEmu/)
+
 For a complete working example demonstrating MomentEmu applied to cosmological parameter estimation (PolyCAMB), see the companion repository: [MomentEmu-PolyCAMB-examples](https://github.com/MomentEmu/MomentEmu-PolyCAMB-examples).
 
 ## 🚀 Features
@@ -64,7 +66,7 @@ pip install -e '.[all]'  # Install in development mode with all features
 - **PyTorch**: `torch` (for machine learning integration)  
 - **Visualization**: `matplotlib` (for plotting and analysis)
 
-**📋 Package Configuration Details**: See [PACKAGE_CONFIG_SUMMARY.md](PACKAGE_CONFIG_SUMMARY.md) for complete information about the package structure, installation options, and auto-differentiation module integration.
+**📋 Package Configuration Details**: See the [Package Configuration Guide](https://zzhang0123.github.io/MomentEmu/contributing/package-config/) for complete information about the package structure, installation options, and auto-differentiation module integration.
 
 ## 🧪 Quick Start
 
