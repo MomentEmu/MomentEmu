@@ -32,18 +32,18 @@ pip install git+https://github.com/MomentEmu/MomentEmu.git
 ```
 
 ### With Auto-Differentiation Support
-```bash
+```bash/zsh
 # Core + JAX (high-performance computing)
-pip install "git+https://github.com/MomentEmu/MomentEmu.git[jax]"
+pip install "MomentEmu[jax] @ git+https://github.com/MomentEmu/MomentEmu.git"
 
 # Core + PyTorch (machine learning)
-pip install "git+https://github.com/MomentEmu/MomentEmu.git[torch]"
+pip install "MomentEmu[torch] @ git+https://github.com/MomentEmu/MomentEmu.git"
 
 # Core + all auto-differentiation frameworks
-pip install "git+https://github.com/MomentEmu/MomentEmu.git[autodiff]"
+pip install "MomentEmu[autodiff] @ git+https://github.com/MomentEmu/MomentEmu.git"
 
 # Everything including visualization tools
-pip install "git+https://github.com/MomentEmu/MomentEmu.git[all]"
+pip install "MomentEmu[all] @ git+https://github.com/MomentEmu/MomentEmu.git"
 ```
 
 ### Development Installation
