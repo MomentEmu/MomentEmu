@@ -84,7 +84,7 @@ emulator = PolyEmu(X, Y,
                    forward=True,              # Enable forward emulation: parameters → observables
                    max_degree_forward=10,     # Max polynomial degree for forward mapping (lower for high-dimensional problems)
                    backward=True,             # Enable inverse emulation: observables → parameters (requires non-degenerate mapping)
-                   max_degree_backward=3,     # Max polynomial degree for inverse mapping (lower for high-dimensional problems)
+                   max_degree_backward=2,     # Max polynomial degree for inverse mapping (lower for high-dimensional problems)
                    )
 
 # Forward prediction: parameters → observables

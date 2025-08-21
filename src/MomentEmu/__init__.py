@@ -11,7 +11,7 @@ Auto-differentiation support is available through:
 - symbolic_momentemu: SymPy integration for exact symbolic computation
 """
 
-from MomentEmu.MomentEmu import PolyEmu, evaluate_emulator, symbolic_polynomial_expressions
+from MomentEmu.PolyEmu import PolyEmu, evaluate_emulator, symbolic_polynomial_expressions
 
 # Auto-differentiation modules (optional imports)
 __all_autodiff__ = []
