@@ -236,19 +236,17 @@ class PolyEmu():
         X_val_scaled = self.scaler_X.transform(X_val)
         Y_val_scaled = self.scaler_Y.transform(Y_val)
 
-        max_deg_forward = max_order(self.n_params, X_train_scaled.shape[0])
-        max_deg_backward = max_order(self.n_outputs, X_train_scaled.shape[0])
 
-        if max_degree_forward is None or max_degree_forward > max_deg_forward:
-            max_degree_forward = max_deg_forward
-            print(f"Set max_degree_forward to {max_degree_forward}. Otherwise, a higher degree will require more samples.")
-        
-        if max_degree_backward is None or max_degree_backward > max_deg_backward:
-            max_degree_backward = max_deg_backward
-            print(f"Set max_degree_backward to {max_degree_backward}. Otherwise, a higher degree will require more samples.")
 
         if forward:
             print("Generating forward emulator...")
+
+            max_deg_forward = max_order(self.n_params, X_train_scaled.shape[0])
+
+            if max_degree_forward is None or max_degree_forward > max_deg_forward:
+                max_degree_forward = max_deg_forward
+                print(f"Set max_degree_forward to {max_degree_forward}. Otherwise, a higher degree will require more samples.")
+
             self.generate_forward_emulator(X_train_scaled, 
                                         Y_train_scaled,
                                         X_val_scaled,
@@ -268,6 +266,12 @@ class PolyEmu():
 
         if backward:
             print("Generating backward emulator...")
+            max_deg_backward = max_order(self.n_outputs, X_train_scaled.shape[0])
+
+            if max_degree_backward is None or max_degree_backward > max_deg_backward:
+                max_degree_backward = max_deg_backward
+                print(f"Set max_degree_backward to {max_degree_backward}. Otherwise, a higher degree will require more samples.")
+
             self.generate_backward_emulator(X_train_scaled, 
                                             Y_train_scaled,
                                             X_val_scaled,
