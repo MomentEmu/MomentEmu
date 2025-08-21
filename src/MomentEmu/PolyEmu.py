@@ -390,7 +390,7 @@ class PolyEmu():
         Y_pred_scaled = evaluate_emulator(X_scaled, self.forward_coeffs, self.forward_multi_indices)
         Y_pred = self.scaler_Y.inverse_transform(Y_pred_scaled)
         if X.ndim == 1:
-            Y_pred = Y_pred.flatten()
+            Y_pred = Y_pred[0]
         return Y_pred
 
     def generate_backward_emulator(self, 
@@ -490,7 +490,7 @@ class PolyEmu():
         X_pred_scaled = evaluate_emulator(Y_scaled, self.backward_coeffs, self.backward_multi_indices)
         X_pred = self.scaler_X.inverse_transform(X_pred_scaled)
         if Y.ndim == 1:
-            X_pred = X_pred.flatten()
+            X_pred = X_pred[0]
         return X_pred
 
     def generate_forward_symb_emu(self, variable_names=None):
