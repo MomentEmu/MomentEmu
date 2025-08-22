@@ -28,22 +28,22 @@ For a complete working example demonstrating MomentEmu applied to cosmological p
 ### Basic Installation
 ```bash
 # Core functionality only (lightweight)
-pip install git+https://github.com/MomentEmu/MomentEmu.git
+pip install git+https://github.com/zzhang0123/MomentEmu.git
 ```
 
 ### With Auto-Differentiation Support
 ```bash/zsh
 # Core + JAX (high-performance computing)
-pip install "MomentEmu[jax] @ git+https://github.com/MomentEmu/MomentEmu.git"
+pip install "MomentEmu[jax] @ git+https://github.com/zzhang0123/MomentEmu.git"
 
 # Core + PyTorch (machine learning)
-pip install "MomentEmu[torch] @ git+https://github.com/MomentEmu/MomentEmu.git"
+pip install "MomentEmu[torch] @ git+https://github.com/zzhang0123/MomentEmu.git"
 
 # Core + all auto-differentiation frameworks
-pip install "MomentEmu[autodiff] @ git+https://github.com/MomentEmu/MomentEmu.git"
+pip install "MomentEmu[autodiff] @ git+https://github.com/zzhang0123/MomentEmu.git"
 
 # Everything including visualization tools
-pip install "MomentEmu[all] @ git+https://github.com/MomentEmu/MomentEmu.git"
+pip install "MomentEmu[all] @ git+https://github.com/zzhang0123/MomentEmu.git"
 ```
 
 ### Development Installation
