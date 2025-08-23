@@ -384,13 +384,32 @@ class PolyEmu():
         pass
 
     def forward_emulator(self, X):
-        if X.ndim == 1:
-            X = X.reshape(1, -1)
+        # Check if the input is float, 1D or 2D
+        if isinstance(X, (float, int)):
+            X = np.array([X])
+        elif isinstance(X, list):
+            X = np.array(X)
+        elif isinstance(X, np.ndarray):
+            pass
+        else:
+            raise ValueError(f"Input must be a float, 1D list, or ND numpy array with last axis equal to the number of parameters ({self.n_params})")
+
+        Xshape = X.shape
+        assert Xshape[-1] == self.n_params, f"Input dimension (last axis) must be equal to the number of parameters ({self.n_params})"
+
+        # if dim is not 2, reshape it
+        if X.ndim != 2:
+            X = X.reshape(-1, self.n_params)
+
         X_scaled = self.scaler_X.transform(X)
         Y_pred_scaled = evaluate_emulator(X_scaled, self.forward_coeffs, self.forward_multi_indices)
         Y_pred = self.scaler_Y.inverse_transform(Y_pred_scaled)
         if X.shape[0] == 1:
             Y_pred = Y_pred[0]
+            if self.n_outputs == 1:
+                Y_pred = Y_pred[0]
+        else:
+            Y_pred = Y_pred.reshape(Xshape[:-1] + (self.n_outputs,))
         return Y_pred
 
     def generate_backward_emulator(self, 
@@ -484,13 +503,30 @@ class PolyEmu():
         pass
 
     def backward_emulator(self, Y):
-        if Y.ndim == 1:
-            Y = Y.reshape(1, -1)
+        if isinstance(Y, (float, int)):
+            Y = np.array([Y])
+        elif isinstance(Y, list):
+            Y = np.array(Y)
+        elif isinstance(Y, np.ndarray):
+            pass
+        else:
+            raise ValueError("Input must be a float, 1D list, or ND numpy array")
+        
+        Yshape = Y.shape
+        assert Yshape[-1] == self.n_outputs, "Input must have the same number of outputs (i.e., the dimension of the last axis) as the emulator"
+
+        if Y.ndim != 2:
+            Y = Y.reshape(-1, self.n_outputs)
+
         Y_scaled = self.scaler_Y.transform(Y)
         X_pred_scaled = evaluate_emulator(Y_scaled, self.backward_coeffs, self.backward_multi_indices)
         X_pred = self.scaler_X.inverse_transform(X_pred_scaled)
         if Y.shape[0] == 1:
             X_pred = X_pred[0]
+            if self.n_params == 1:
+                X_pred = X_pred[0]
+        else:
+            X_pred = X_pred.reshape(Yshape[:-1] + (self.n_params,))
         return X_pred
 
     def generate_forward_symb_emu(self, variable_names=None):
