@@ -385,8 +385,9 @@ class PolyEmu():
 
     def forward_emulator(self, X):
         # Check if the input is float, 1D or 2D
-        if isinstance(X, (float, int)):
-            X = np.array([X])
+        float_or_int = isinstance(X, (float, int))
+        if float_or_int:
+            X = np.array([[X]])
         elif isinstance(X, list):
             X = np.array(X)
         elif isinstance(X, np.ndarray):
@@ -404,7 +405,7 @@ class PolyEmu():
         X_scaled = self.scaler_X.transform(X)
         Y_pred_scaled = evaluate_emulator(X_scaled, self.forward_coeffs, self.forward_multi_indices)
         Y_pred = self.scaler_Y.inverse_transform(Y_pred_scaled)
-        if X.shape[0] == 1:
+        if float_or_int:
             Y_pred = Y_pred[0]
             if self.n_outputs == 1:
                 Y_pred = Y_pred[0]
@@ -503,8 +504,9 @@ class PolyEmu():
         pass
 
     def backward_emulator(self, Y):
-        if isinstance(Y, (float, int)):
-            Y = np.array([Y])
+        float_or_int = isinstance(Y, (float, int))
+        if float_or_int:
+            Y = np.array([[Y]])
         elif isinstance(Y, list):
             Y = np.array(Y)
         elif isinstance(Y, np.ndarray):
@@ -521,7 +523,7 @@ class PolyEmu():
         Y_scaled = self.scaler_Y.transform(Y)
         X_pred_scaled = evaluate_emulator(Y_scaled, self.backward_coeffs, self.backward_multi_indices)
         X_pred = self.scaler_X.inverse_transform(X_pred_scaled)
-        if Y.shape[0] == 1:
+        if float_or_int:
             X_pred = X_pred[0]
             if self.n_params == 1:
                 X_pred = X_pred[0]
