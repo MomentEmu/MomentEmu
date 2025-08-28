@@ -16,7 +16,7 @@ import jax
 import jax.numpy as jnp
 from jax import grad, jacfwd, jacrev
 import numpy as np
-from MomentEmu.MomentEmu import PolyEmu
+from MomentEmu.PolyEmu import PolyEmu
 
 def create_jax_emulator(emulator):
     """Convert trained MomentEmu to JAX-differentiable function."""

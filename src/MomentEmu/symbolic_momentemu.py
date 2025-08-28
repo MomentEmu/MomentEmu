@@ -15,7 +15,7 @@ Key components:
 
 import sympy as sp
 import numpy as np
-from MomentEmu.MomentEmu import PolyEmu
+from MomentEmu.PolyEmu import PolyEmu
 
 class SymbolicMomentEmu:
     """Symbolic differentiable MomentEmu using SymPy."""

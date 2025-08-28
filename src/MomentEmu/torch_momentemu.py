@@ -16,7 +16,7 @@ Key components:
 import torch
 import torch.nn as nn
 import numpy as np
-from MomentEmu.MomentEmu import PolyEmu
+from MomentEmu.PolyEmu import PolyEmu
 
 class TorchMomentEmu(nn.Module):
     """PyTorch module for differentiable MomentEmu."""
