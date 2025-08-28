@@ -18,12 +18,38 @@ from jax import grad, jacfwd, jacrev
 import numpy as np
 from MomentEmu.PolyEmu import PolyEmu
 
+
+def evaluate_monomials_jax_v1(X_scaled, multi_indices):
+    """JAX-compatible monomial evaluation."""
+    if X_scaled.ndim == 1:
+        X_scaled = X_scaled.reshape(1, -1)
+    
+    N, n = X_scaled.shape
+    D = len(multi_indices)
+    
+    Phi = jnp.ones((N, D))
+    for j, alpha in enumerate(multi_indices):
+        monomial = jnp.ones(N)
+        for i, deg in enumerate(alpha):
+            if deg > 0:
+                monomial = monomial * (X_scaled[:, i] ** deg)
+        Phi = Phi.at[:, j].set(monomial)
+    
+    return Phi
+
+@jax.jit
+def evaluate_monomials_jax(X_scaled, multi_indices):
+    """JAX-compatible monomial evaluation."""
+    # More efficient vectorized approach
+    Phi = jnp.prod(X_scaled[:, None, :] ** multi_indices[None, :, :], axis=2)
+    return Phi
+
 def create_jax_emulator(emulator):
     """Convert trained MomentEmu to JAX-differentiable function."""
     
     # Extract learned parameters
     coeffs = jnp.array(emulator.forward_coeffs)
-    multi_indices = emulator.forward_multi_indices
+    multi_indices = jnp.array(emulator.forward_multi_indices)
     
     # Extract scaling parameters
     input_mean = jnp.array(emulator.scaler_X.mean_)
@@ -31,29 +57,15 @@ def create_jax_emulator(emulator):
     output_mean = jnp.array(emulator.scaler_Y.mean_)
     output_scale = jnp.array(emulator.scaler_Y.scale_)
     
-    def evaluate_monomials_jax(X_scaled, multi_indices):
-        """JAX-compatible monomial evaluation."""
-        if X_scaled.ndim == 1:
-            X_scaled = X_scaled.reshape(1, -1)
-        
-        N, n = X_scaled.shape
-        D = len(multi_indices)
-        
-        Phi = jnp.ones((N, D))
-        for j, alpha in enumerate(multi_indices):
-            monomial = jnp.ones(N)
-            for i, deg in enumerate(alpha):
-                if deg > 0:
-                    monomial = monomial * (X_scaled[:, i] ** deg)
-            Phi = Phi.at[:, j].set(monomial)
-        
-        return Phi
-    
     @jax.jit
     def jax_emulator(X):
         """JAX-compiled differentiable emulator."""
+        # Handle scalar input
+        X = jnp.atleast_1d(X)
         # Handle single sample
+        single_sample = False
         if X.ndim == 1:
+            single_sample = True
             X = X.reshape(1, -1)
         
         # Scale inputs
@@ -63,11 +75,12 @@ def create_jax_emulator(emulator):
         Phi = evaluate_monomials_jax(X_scaled, multi_indices)
         
         # Predict scaled outputs
-        Y_scaled = Phi @ coeffs
+        Y_scaled = Phi @ coeffs # (N, D) @ (D, m) -> (N, m)
         
         # Unscale outputs
         Y = Y_scaled * output_scale + output_mean
-        
+        if single_sample:
+            Y = Y[0]
         return Y
     
     return jax_emulator
