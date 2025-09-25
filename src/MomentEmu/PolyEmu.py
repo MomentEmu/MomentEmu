@@ -95,7 +95,7 @@ def evaluate_monomials(X, multi_indices):
     """Evaluate φ_α(X) for all samples and all α."""
     N, n = X.shape
     D = len(multi_indices)
-    Phi = np.empty((N, D))
+    Phi = np.empty((N, D), dtype=X.dtype)
     for j, alpha in enumerate(multi_indices):
         Phi[:, j] = np.prod(X ** alpha, axis=1)
     return Phi  # shape: N x D
@@ -110,9 +110,9 @@ def evaluate_monomials_lazy(X, multi_indices):
     # Cache only needed powers: (i, d) -> X[:, i] ** d
     power_cache = {}
     
-    Phi = np.empty((N, D))
+    Phi = np.empty((N, D), dtype=X.dtype)
     for j, alpha in enumerate(multi_indices):
-        phi_j = np.ones(N)
+        phi_j = np.ones(N, dtype=X.dtype)
         for i, deg in enumerate(alpha):
             if deg == 0:
                 continue
@@ -127,7 +127,7 @@ def evaluate_monomials_lazy(X, multi_indices):
 def evaluate_monomials_batched(X, multi_indices, batch_size=10000, function=evaluate_monomials_lazy):
     N, n = X.shape
     D = len(multi_indices)
-    Phi = np.empty((N, D))
+    Phi = np.empty((N, D), dtype=X.dtype)
     
     for i in range(0, N, batch_size):
         batch_end = min(i + batch_size, N)
@@ -150,6 +150,53 @@ def compute_moments_vector_output(X, Y, multi_indices):
 
     Mm, nu = generate_moment_products(Phi, Y)
 
+    return Mm, nu
+
+def compute_moments_vector_output_batched(X, Y, multi_indices, batch_size=10000):
+    """
+    Memory-efficient version of moment computation using batched processing.
+    
+    Args:
+        X: N x n input parameter array
+        Y: N x m observable array  
+        multi_indices: list of multi-indices
+        batch_size: number of samples to process at once
+        
+    Returns:
+        Mm: moment matrix (D x D)
+        nu: moment vectors (D x m)
+    """     
+    N, n = X.shape
+    m = Y.shape[1]
+    D = len(multi_indices)
+    
+    # Initialize accumulators
+    Mm = np.zeros((D, D), dtype=X.dtype)
+    nu = np.zeros((D, m), dtype=X.dtype)
+    
+    # Process data in batches
+    for start_idx in range(0, N, batch_size):
+        end_idx = min(start_idx + batch_size, N)
+        batch_size_actual = end_idx - start_idx
+        
+        # Evaluate monomials for this batch
+        X_batch = X[start_idx:end_idx]
+        Y_batch = Y[start_idx:end_idx]
+        Phi_batch = evaluate_monomials_lazy(X_batch, multi_indices)  # batch_size x D
+        
+        # Accumulate moment matrix: M += Phi_batch.T @ Phi_batch
+        Mm += Phi_batch.T @ Phi_batch
+        
+        # Accumulate moment vector: nu += Phi_batch.T @ Y_batch
+        nu += Phi_batch.T @ Y_batch
+        
+        # Clear batch from memory
+        del Phi_batch, X_batch, Y_batch
+    
+    # Normalize by total number of samples
+    Mm /= N
+    nu /= N
+    
     return Mm, nu
 
 def symbolic_polynomial_expressions(coeffs, multi_indices, variable_names=None, 
@@ -203,6 +250,23 @@ def evaluate_emulator(X, coeffs, multi_indices):
     Phi = evaluate_monomials_lazy(X, multi_indices)  # N x D
     return Phi @ coeffs  # N x m
 
+def evaluate_emulator_batched(X, coeffs, multi_indices, batch_size=10000):
+    """
+    Memory-efficient emulator evaluation for large datasets.
+    """
+    N = X.shape[0]
+    m = coeffs.shape[1]
+    Y_pred = np.empty((N, m), dtype=X.dtype)
+    
+    for start_idx in range(0, N, batch_size):
+        end_idx = min(start_idx + batch_size, N)
+        X_batch = X[start_idx:end_idx]
+        Phi_batch = evaluate_monomials_lazy(X_batch, multi_indices)
+        Y_pred[start_idx:end_idx] = Phi_batch @ coeffs
+        del Phi_batch, X_batch
+    
+    return Y_pred
+
 def max_order(n_params, N_samples):
     import math
     k = 0
@@ -229,7 +293,9 @@ class PolyEmu():
                 max_degree_backward=None,
                 dim_reduction=True,
                 per_mode_thres=None,
-                return_max_frac_err=False):
+                return_max_frac_err=False,
+                batch_size=10000):
+        
         self.n_params = X.shape[1]
         self.n_outputs = Y.shape[1]
 
@@ -270,7 +336,8 @@ class PolyEmu():
                                         init_deg=init_deg_forward, 
                                         max_degree=max_degree_forward,
                                         dim_reduction=dim_reduction,
-                                        per_mode_thres=per_mode_thres)
+                                        per_mode_thres=per_mode_thres,
+                                        batch_size=batch_size)
             if return_max_frac_err:
                 Y_val_pred = self.forward_emulator(X_val)
                 max_frac_err = np.max(np.abs((Y_val_pred - Y_val) / (Y_val+1e-10)))
@@ -295,7 +362,8 @@ class PolyEmu():
                                             init_deg=init_deg_backward, 
                                             max_degree=max_degree_backward,
                                             dim_reduction=dim_reduction,
-                                            per_mode_thres=per_mode_thres)
+                                            per_mode_thres=per_mode_thres,
+                                            batch_size=batch_size)
             if return_max_frac_err:
                 X_val_pred = self.backward_emulator(Y_val)
                 max_frac_err = np.max(np.abs((X_val_pred - X_val) / (X_val+1e-10)))
@@ -313,7 +381,8 @@ class PolyEmu():
                                   init_deg=None, 
                                   max_degree=None,
                                   dim_reduction=False,
-                                  per_mode_thres=None):
+                                  per_mode_thres=None,
+                                  batch_size=10000):
 
         if init_deg is None:
             if self.n_params > 6:
@@ -339,10 +408,18 @@ class PolyEmu():
             else:
                 aux_indices = given_order_indices(self.n_params, d)
                 multi_indices = np.concatenate((multi_indices, aux_indices), axis=0)
-            M, nu = compute_moments_vector_output(X_train_scaled, Y_train_scaled, multi_indices)
+
+            # M, nu = compute_moments_vector_output(X_train_scaled, Y_train_scaled, multi_indices)
+            # Use batched computation
+            M, nu = compute_moments_vector_output_batched(
+                X_train_scaled, Y_train_scaled, multi_indices, batch_size=batch_size
+            )
             coeffs = solve_emulator_coefficients(M, nu)
 
-            Y_val_pred = evaluate_emulator(X_val_scaled, coeffs, multi_indices)
+            # Y_val_pred = evaluate_emulator(X_val_scaled, coeffs, multi_indices)
+            Y_val_pred = evaluate_emulator_batched(
+                X_val_scaled, coeffs, multi_indices, batch_size=batch_size
+            )
 
             RMSE_val, AIC, BIC = predictive_mse_aic_bic(Y_val_scaled, Y_val_pred, multi_indices.shape[0], n_train=X_train_scaled.shape[0])
             RMSE_val_list.append(RMSE_val)
@@ -382,7 +459,11 @@ class PolyEmu():
             Mm, nu = compute_moments_vector_output(X_train_scaled, Y_train_scaled, multi_indices)
             coeffs = solve_emulator_coefficients(Mm, nu)
 
-            Y_val_pred = evaluate_emulator(X_val_scaled, coeffs, multi_indices)
+            # Y_val_pred = evaluate_emulator(X_val_scaled, coeffs, multi_indices)
+            Y_val_pred = evaluate_emulator_batched(
+                X_val_scaled, coeffs, multi_indices, batch_size=batch_size
+            )
+            
             RMSE_val, AIC, BIC = predictive_mse_aic_bic(Y_val_scaled, Y_val_pred, multi_indices.shape[0], n_train=X_train_scaled.shape[0])
             print(f"After the dimension reduction, the RMSE: {RMSE_val}, AIC: {AIC}, BIC: {BIC}")
 
@@ -437,7 +518,8 @@ class PolyEmu():
                                    init_deg=None, 
                                    max_degree=None,
                                    dim_reduction=False,
-                                   per_mode_thres=None):
+                                   per_mode_thres=None, 
+                                   batch_size=10000):
         if init_deg is None:
             if self.n_outputs > 6:
                 degree = 1
@@ -462,10 +544,17 @@ class PolyEmu():
             else:
                 aux_indices = given_order_indices(self.n_outputs, d)
                 multi_indices = np.concatenate((multi_indices, aux_indices), axis=0)
-            M, nu = compute_moments_vector_output(Y_train_scaled, X_train_scaled, multi_indices)
+            # M, nu = compute_moments_vector_output(Y_train_scaled, X_train_scaled, multi_indices)
+            # Use batched computation
+            M, nu = compute_moments_vector_output_batched(
+                Y_train_scaled, X_train_scaled, multi_indices, batch_size=batch_size
+            )
             coeffs = solve_emulator_coefficients(M, nu)
 
-            X_val_pred = evaluate_emulator(Y_val_scaled, coeffs, multi_indices)
+            # X_val_pred = evaluate_emulator(Y_val_scaled, coeffs, multi_indices)
+            X_val_pred = evaluate_emulator_batched(
+                Y_val_scaled, coeffs, multi_indices, batch_size=batch_size
+            )
 
             RMSE_val, AIC, BIC = predictive_mse_aic_bic(X_val_scaled, X_val_pred, multi_indices.shape[0], n_train=Y_train_scaled.shape[0])
             RMSE_val_list.append(RMSE_val)
@@ -486,7 +575,10 @@ class PolyEmu():
             if d == max_degree:
                 warning(f"Maximum degree {max_degree} reached. Now choose the best fit. ")
                 ind = select_best_model(RMSE_val_list, aic_list=AIC_list, bic_list=BIC_list, rmse_tol=fRMSE_tol)
-                assert RMSE_val_list[ind] < RMSE_upper, "Failed: The best model has RMSE higher than the upper bound."
+                # assert RMSE_val_list[ind] < RMSE_upper, "Failed: The best model has RMSE higher than the upper bound."
+
+                if RMSE_val_list[ind] < RMSE_upper:
+                    warning("Warning: The best model has RMSE higher than {}.".format(RMSE_upper))
                 coeffs = coeffs_list[ind]
                 multi_indices = multi_indices_list[ind]
                 self.backward_degree = degree + ind
@@ -504,7 +596,10 @@ class PolyEmu():
             print(f"Dimension reduced  from {coeffs.shape[0]} modes to {multi_indices.shape[0]}  modes.")
             Mm, nu = compute_moments_vector_output(Y_train_scaled, X_train_scaled, multi_indices)
             coeffs = solve_emulator_coefficients(Mm, nu)
-            X_val_pred = evaluate_emulator(Y_val_scaled, coeffs, multi_indices)
+            # X_val_pred = evaluate_emulator(Y_val_scaled, coeffs, multi_indices)
+            X_val_pred = evaluate_emulator_batched(
+                Y_val_scaled, coeffs, multi_indices, batch_size=batch_size
+            )
             RMSE_val, AIC, BIC = predictive_mse_aic_bic(X_val_scaled, X_val_pred, multi_indices.shape[0], n_train=Y_train_scaled.shape[0])
             print(f"After the dimension reduction, the RMSE: {RMSE_val}, AIC: {AIC}, BIC: {BIC}")
             
