@@ -296,6 +296,27 @@ class PolyEmu():
                 return_max_frac_err=False,
                 standardize_Y_with_std=True,
                 batch_size=10000):
+        """
+        Polynomial emulator class for both forward and backward emulation.
+        X: N x n array of input parameters. N is the number of samples, n is the number of parameters.
+        Y: N x m array of observables. m is the number of observables.
+        X_test, Y_test: optional test/validation sets. If not provided, a split from X, Y will be used.
+        test_size: fraction of data to use for validation if X_test, Y_test not provided.
+        RMSE_upper: upper bound on acceptable RMSE for model selection.
+        RMSE_lower: target RMSE to stop increasing polynomial degree.
+        fRMSE_tol: tolerance for selecting best model based on RMSE.
+
+        forward: whether to generate forward emulator.
+        backward: whether to generate backward emulator.
+        init_deg_forward, init_deg_backward: initial polynomial degree for forward/backward emulators.
+        max_degree_forward, max_degree_backward: maximum polynomial degree for forward/backward emulators.
+        dim_reduction: whether to perform dimension reduction after fitting.
+
+        per_mode_thres: threshold for dimension reduction per mode.
+        return_max_frac_err: whether to compute and store maximum fractional error on validation set.
+        standardize_Y_with_std: whether to standardize Y with standard deviation (True) or only mean (False).
+        batch_size: batch size for batched computations to manage memory usage.
+        """
         
         self.n_params = X.shape[1]
         self.n_outputs = Y.shape[1]

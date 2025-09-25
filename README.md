@@ -73,32 +73,46 @@ pip install -e '.[all]'  # Install in development mode with all features
 **Note**: Make sure to install MomentEmu first using one of the installation methods above.
 
 ```python
-from MomentEmu import PolyEmu
+from MomentEmu.PolyEmu import PolyEmu
+import numpy as np
 
-# Define your training data
-X = ...  # Input parameters, shape (N, n)
-Y = ...  # Output observables, shape (N, m)
+# Generate example training data
+# 2D input parameters (e.g., physical parameters)
+X_train = np.random.uniform(1, 2, (500, 2))
+
+# Multi-output observables with different functional forms
+Y_train1 = (X_train[:, 0]**2 + X_train[:, 1]**2).reshape(-1, 1)  # Quadratic combination
+Y_train2 = (X_train[:, 0]**3 + X_train[:, 1]).reshape(-1, 1)     # Cubic + linear
+Y_train = np.hstack((Y_train1, Y_train2))
+
+print(f"Training data shape: X {X_train.shape}, Y {Y_train.shape}")
 
 # Create emulator with both forward and inverse capabilities
-emulator = PolyEmu(X, Y, 
-                   forward=True,              # Enable forward emulation: parameters → observables
-                   max_degree_forward=10,     # Max polynomial degree for forward mapping (lower for high-dimensional problems)
-                   backward=True,             # Enable inverse emulation: observables → parameters (requires non-degenerate mapping)
-                   max_degree_backward=2,     # Max polynomial degree for inverse mapping (lower for high-dimensional problems)
-                   )
+emulator = PolyEmu(X_train, Y_train, 
+                   forward=True,                    # Enable forward emulation: parameters → observables
+                   backward=True,                   # Enable inverse emulation: observables → parameters
+                   standardize_Y_with_std=False)    # Use only mean centering for Y (optional)
 
 # Forward prediction: parameters → observables
-X_new = ...       # New parameter samples, shape (k, n)
+X_new = np.array([[1.5, 1.8], [1.2, 1.9]])  # New parameter samples
 Y_pred = emulator.forward_emulator(X_new)
+print(f"Forward prediction: {Y_pred}")
 
 # Inverse estimation: observables → parameters  
-Y_new = ...       # New observable samples, shape (k, m)
+Y_new = np.array([[5.0, 4.2], [6.1, 5.8]])  # New observable samples
 X_est = emulator.backward_emulator(Y_new)
+print(f"Inverse estimation: {X_est}")
 
-# Get symbolic polynomial expressions
+# Get symbolic polynomial expressions (interpretable models)
 forward_expressions = emulator.generate_forward_symb_emu()
-backward_expressions = emulator.generate_backward_symb_emu()
+print(f"Forward symbolic expressions: {forward_expressions}")
 ```
+
+### Key Features Demonstrated:
+- **Multi-dimensional**: 2 input parameters, 2 output observables
+- **Bidirectional**: Both forward (θ → y) and inverse (y → θ) emulation
+- **Automatic model selection**: Optimal polynomial degree chosen via validation
+- **Symbolic output**: Get interpretable closed-form polynomial expressions
 
 ## Auto-Differentiation Support
 
