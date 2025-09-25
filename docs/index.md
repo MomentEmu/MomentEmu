@@ -74,7 +74,6 @@ Use the navigation menu to explore:
 - 📄 **Paper**: [arXiv:2507.02179](https://arxiv.org/abs/2507.02179)
 - 🧪 **Examples**: [MomentEmu-PolyCAMB-examples](https://github.com/MomentEmu/MomentEmu-PolyCAMB-examples)
 - 🐛 **Issues**: [GitHub Issues](https://github.com/zzhang0123/MomentEmu/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/zzhang0123/MomentEmu/discussions)
 
 ## How It Works
 

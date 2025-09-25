@@ -123,6 +123,19 @@ def evaluate_monomials_lazy(X, multi_indices):
         Phi[:, j] = phi_j
     return Phi
 
+######## New method for solving the memory issue #########
+def evaluate_monomials_batched(X, multi_indices, batch_size=10000, function=evaluate_monomials_lazy):
+    N, n = X.shape
+    D = len(multi_indices)
+    Phi = np.empty((N, D))
+    
+    for i in range(0, N, batch_size):
+        batch_end = min(i + batch_size, N)
+        Phi[i:batch_end] = evaluate_monomials_lazy(X[i:batch_end], multi_indices)
+    return Phi
+###########################################################
+
+
 def compute_moments_vector_output(X, Y, multi_indices):
     """
     Vector-valued version of moment method.
@@ -348,7 +361,7 @@ class PolyEmu():
                 print(f"Forward emulator generated with degree {d}, RMSE_val of {RMSE_val}.")
                 break
             if d == max_degree:
-                warning(f"Maximum degree {max_degree} reached. Now choose the best fit. ")
+                print(f"Maximum degree {max_degree} reached. Now choose the best fit. ")
                 ind = select_best_model(RMSE_val_list, aic_list=AIC_list, bic_list=BIC_list, rmse_tol=fRMSE_tol)
                 assert RMSE_val_list[ind] < RMSE_upper, "Failed: The best model has RMSE higher than the upper bound."
                 coeffs = coeffs_list[ind]
