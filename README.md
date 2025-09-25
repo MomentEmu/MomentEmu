@@ -8,8 +8,6 @@ A lightweight, interpretable polynomial emulator for smooth mappings, implemente
 **MomentEmu** implements the **moment-projection polynomial emulator** introduced in Zhang (2025) ([arXiv:2507.02179](https://arxiv.org/abs/2507.02179)).
 It builds interpretable, closed-form polynomial emulators via moment matrices, achieving millisecond-level inference and symbolic transparency.
 
-**📖 Complete documentation:** [https://zzhang0123.github.io/MomentEmu/](https://zzhang0123.github.io/MomentEmu/)
-
 For a complete working example demonstrating MomentEmu applied to cosmological parameter estimation (PolyCAMB), see the companion repository: [MomentEmu-PolyCAMB-examples](https://github.com/MomentEmu/MomentEmu-PolyCAMB-examples).
 
 ## 🚀 Features
@@ -65,8 +63,6 @@ pip install -e '.[all]'  # Install in development mode with all features
 - **JAX**: `jax`, `jaxlib` (for high-performance auto-differentiation)
 - **PyTorch**: `torch` (for machine learning integration)  
 - **Visualization**: `matplotlib` (for plotting and analysis)
-
-**📋 Package Configuration Details**: See the [Package Configuration Guide](https://zzhang0123.github.io/MomentEmu/contributing/package-config/) for complete information about the package structure, installation options, and auto-differentiation module integration.
 
 ## 🧪 Quick Start
 
@@ -139,19 +135,9 @@ y = jax_emu(x)
 gradient = grad(lambda x: jax_emu(x).sum())(x)
 ```
 
-## 📖 Documentation
-
-**Complete documentation is available at: [https://zzhang0123.github.io/MomentEmu/](https://zzhang0123.github.io/MomentEmu/)**
-
-### Quick Links
-- **[Installation Guide](https://zzhang0123.github.io/MomentEmu/installation/quick-start/)** - Get started quickly
-- **[Getting Started Tutorial](https://zzhang0123.github.io/MomentEmu/tutorials/getting-started/)** - Step-by-step walkthrough  
-- **[Auto-Differentiation Guide](https://zzhang0123.github.io/MomentEmu/tutorials/autodiff-guide/)** - JAX, PyTorch, SymPy integration
-- **[API Reference](https://zzhang0123.github.io/MomentEmu/api/core/)** - Complete function documentation
-- **[Use Cases](https://zzhang0123.github.io/MomentEmu/examples/use-cases/)** - Real-world applications
 
 ### 📖 Complete Auto-Differentiation Guide
-For comprehensive documentation, performance comparisons, usage examples, and integration guidelines, see the **[Auto-Differentiation Guide](https://zzhang0123.github.io/MomentEmu/tutorials/autodiff-guide/)** in the full documentation.
+For comprehensive documentation, performance comparisons, usage examples, and integration guidelines, see the **[Auto-Differentiation Guide](autodiff-guide.md)** in this repository.
 
 The guide covers:
 - Detailed usage for each framework (JAX, PyTorch, SymPy)
