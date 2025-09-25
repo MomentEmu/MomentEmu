@@ -282,7 +282,7 @@ class PolyEmu():
                 X_test=None, 
                 Y_test=None, 
                 test_size=0.15, 
-                RMSE_upper=1e-1,
+                RMSE_upper=1.0,
                 RMSE_lower=1e-2, 
                 fRMSE_tol=1e-1,
                 forward=True, 
@@ -294,10 +294,12 @@ class PolyEmu():
                 dim_reduction=True,
                 per_mode_thres=None,
                 return_max_frac_err=False,
+                standardize_Y_with_std=True,
                 batch_size=10000):
         
         self.n_params = X.shape[1]
         self.n_outputs = Y.shape[1]
+        self.standardize_Y_with_std = standardize_Y_with_std
 
         if X_test is None or Y_test is None:
             # Split into training and validation
@@ -308,36 +310,39 @@ class PolyEmu():
 
         # Scale the training data
         self.scaler_X = StandardScaler()
-        self.scaler_Y = StandardScaler()
+        self.scaler_Y = StandardScaler(with_std=self.standardize_Y_with_std)
 
-        X_train_scaled = self.scaler_X.fit_transform(X_train)
-        Y_train_scaled = self.scaler_Y.fit_transform(Y_train)
-        X_val_scaled = self.scaler_X.transform(X_val)
-        Y_val_scaled = self.scaler_Y.transform(Y_val)
+        # in-place scaling transformation
+        X_train = self.scaler_X.fit_transform(X_train) 
+        Y_train = self.scaler_Y.fit_transform(Y_train) 
+        X_val = self.scaler_X.transform(X_val)
+        Y_val = self.scaler_Y.transform(Y_val)
 
 
 
         if forward:
             print("Generating forward emulator...")
 
-            max_deg_forward = max_order(self.n_params, X_train_scaled.shape[0])
+            max_deg_forward = max_order(self.n_params, X_train.shape[0])
 
             if max_degree_forward is None or max_degree_forward > max_deg_forward:
                 max_degree_forward = max_deg_forward
                 print(f"Set max_degree_forward to {max_degree_forward}. Otherwise, a higher degree will require more samples.")
 
-            self.generate_forward_emulator(X_train_scaled, 
-                                        Y_train_scaled,
-                                        X_val_scaled,
-                                        Y_val_scaled,
-                                        RMSE_upper=RMSE_upper,
-                                        RMSE_lower=RMSE_lower, 
-                                        fRMSE_tol=fRMSE_tol,
-                                        init_deg=init_deg_forward, 
-                                        max_degree=max_degree_forward,
-                                        dim_reduction=dim_reduction,
-                                        per_mode_thres=per_mode_thres,
-                                        batch_size=batch_size)
+            self.generate_forward_emulator(
+                X_train, 
+                Y_train,
+                X_val,
+                Y_val,
+                RMSE_upper=RMSE_upper,
+                RMSE_lower=RMSE_lower, 
+                fRMSE_tol=fRMSE_tol,
+                init_deg=init_deg_forward, 
+                max_degree=max_degree_forward,
+                dim_reduction=dim_reduction,
+                per_mode_thres=per_mode_thres,
+                batch_size=batch_size
+            )
             if return_max_frac_err:
                 Y_val_pred = self.forward_emulator(X_val)
                 max_frac_err = np.max(np.abs((Y_val_pred - Y_val) / (Y_val+1e-10)))
@@ -346,16 +351,16 @@ class PolyEmu():
 
         if backward:
             print("Generating backward emulator...")
-            max_deg_backward = max_order(self.n_outputs, X_train_scaled.shape[0])
+            max_deg_backward = max_order(self.n_outputs, X_train.shape[0])
 
             if max_degree_backward is None or max_degree_backward > max_deg_backward:
                 max_degree_backward = max_deg_backward
                 print(f"Set max_degree_backward to {max_degree_backward}. Otherwise, a higher degree will require more samples.")
 
-            self.generate_backward_emulator(X_train_scaled, 
-                                            Y_train_scaled,
-                                            X_val_scaled,
-                                            Y_val_scaled,
+            self.generate_backward_emulator(X_train, 
+                                            Y_train,
+                                            X_val,
+                                            Y_val,
                                             RMSE_upper=RMSE_upper,
                                             RMSE_lower=RMSE_lower, 
                                             fRMSE_tol=fRMSE_tol,
@@ -640,21 +645,23 @@ class PolyEmu():
         return X_pred
 
     def generate_forward_symb_emu(self, variable_names=None):
+        Y_var = np.ones(self.n_outputs) if not self.standardize_Y_with_std else self.scaler_Y.var_
         exprs = symbolic_polynomial_expressions(self.forward_coeffs, 
                                                 self.forward_multi_indices, 
                                                 variable_names=variable_names, 
                                                 input_means=self.scaler_X.mean_, 
                                                 input_vars=self.scaler_X.var_,
                                                 output_means=self.scaler_Y.mean_, 
-                                                output_vars=self.scaler_Y.var_)
+                                                output_vars=Y_var)
         return exprs
     
     def generate_backward_symb_emu(self, variable_names=None):
+        Y_var = np.ones(self.n_outputs) if not self.standardize_Y_with_std else self.scaler_Y.var_
         exprs = symbolic_polynomial_expressions(self.backward_coeffs, 
                                                 self.backward_multi_indices, 
                                                 variable_names=variable_names, 
                                                 input_means=self.scaler_Y.mean_, 
-                                                input_vars=self.scaler_Y.var_,
+                                                input_vars=Y_var,
                                                 output_means=self.scaler_X.mean_,
                                                 output_vars=self.scaler_X.var_)
         return exprs
