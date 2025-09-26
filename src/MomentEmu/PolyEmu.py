@@ -281,6 +281,7 @@ class PolyEmu():
                 Y, 
                 X_test=None, 
                 Y_test=None, 
+                cross_validation=True,
                 test_size=0.15, 
                 RMSE_upper=1.0,
                 RMSE_lower=1e-2, 
@@ -323,11 +324,17 @@ class PolyEmu():
         self.standardize_Y_with_std = standardize_Y_with_std
 
         if X_test is None or Y_test is None:
-            # Split into training and validation
-            X_train, X_val, Y_train, Y_val = train_test_split(X, Y, test_size=test_size)
+            if cross_validation:
+                # Split into training and validation
+                X_train, X_val, Y_train, Y_val = train_test_split(X, Y, test_size=test_size)
+                cross_val = True
+            else:
+                X_train, Y_train = X, Y
+                cross_val = False
         else:
             X_train, Y_train = X, Y
             X_val, Y_val = X_test, Y_test
+            cross_val = True
 
         # Scale the training data
         self.scaler_X = StandardScaler()
@@ -336,8 +343,12 @@ class PolyEmu():
         # in-place scaling transformation
         X_train = self.scaler_X.fit_transform(X_train) 
         Y_train = self.scaler_Y.fit_transform(Y_train) 
-        X_val = self.scaler_X.transform(X_val)
-        Y_val = self.scaler_Y.transform(Y_val)
+        if cross_val:
+            X_val = self.scaler_X.transform(X_val)
+            Y_val = self.scaler_Y.transform(Y_val)
+        else:
+            # using the training set to define the fitting error
+            X_val, Y_val = X_train, Y_train
 
 
 
