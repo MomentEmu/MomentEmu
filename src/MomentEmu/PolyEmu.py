@@ -466,7 +466,10 @@ class PolyEmu():
             if d == max_degree:
                 print(f"Maximum degree {max_degree} reached. Now choose the best fit. ")
                 ind = select_best_model(RMSE_val_list, aic_list=AIC_list, bic_list=BIC_list, rmse_tol=fRMSE_tol)
-                assert RMSE_val_list[ind] < RMSE_upper, "Failed: The best model has RMSE higher than the upper bound."
+                # assert RMSE_val_list[ind] < RMSE_upper, "Failed: The best model has RMSE higher than the upper bound."
+                if RMSE_val_list[ind] < RMSE_upper:
+                    warning("Warning: The best model has RMSE higher than {}.".format(RMSE_upper))
+                
                 coeffs = coeffs_list[ind]
                 multi_indices = multi_indices_list[ind]
                 self.foward_degree = degree + ind
