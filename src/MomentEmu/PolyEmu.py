@@ -283,8 +283,8 @@ class PolyEmu():
                 Y_test=None, 
                 cross_validation=True,
                 test_size=0.15, 
-                RMSE_upper=1.0,
-                RMSE_lower=1e-2, 
+                # RMSE_upper=1.0,
+                RMSE_tol=1e-2, 
                 fRMSE_tol=1e-1,
                 forward=True, 
                 backward=False,
@@ -303,9 +303,8 @@ class PolyEmu():
         Y: N x m array of observables. m is the number of observables.
         X_test, Y_test: optional test/validation sets. If not provided, a split from X, Y will be used.
         test_size: fraction of data to use for validation if X_test, Y_test not provided.
-        RMSE_upper: upper bound on acceptable RMSE for model selection.
-        RMSE_lower: target RMSE to stop increasing polynomial degree.
-        fRMSE_tol: tolerance for selecting best model based on RMSE.
+        RMSE_tol: target RMSE to stop increasing polynomial degree.
+        fRMSE_tol: tolerance for selecting best model based on RMSE. We select the simplest model within fRMSE_tol (fractional range) of the lowest RMSE.
 
         forward: whether to generate forward emulator.
         backward: whether to generate backward emulator.
@@ -366,8 +365,8 @@ class PolyEmu():
                 Y_train,
                 X_val,
                 Y_val,
-                RMSE_upper=RMSE_upper,
-                RMSE_lower=RMSE_lower, 
+                # RMSE_upper=RMSE_upper,
+                RMSE_tol=RMSE_tol, 
                 fRMSE_tol=fRMSE_tol,
                 init_deg=init_deg_forward, 
                 max_degree=max_degree_forward,
@@ -393,8 +392,8 @@ class PolyEmu():
                                             Y_train,
                                             X_val,
                                             Y_val,
-                                            RMSE_upper=RMSE_upper,
-                                            RMSE_lower=RMSE_lower, 
+                                            # RMSE_upper=RMSE_upper,
+                                            RMSE_tol=RMSE_tol, 
                                             fRMSE_tol=fRMSE_tol,
                                             init_deg=init_deg_backward, 
                                             max_degree=max_degree_backward,
@@ -412,8 +411,8 @@ class PolyEmu():
                                   Y_train_scaled,
                                   X_val_scaled,
                                   Y_val_scaled,
-                                  RMSE_upper=0.1,
-                                  RMSE_lower=1e-3, 
+                                #   RMSE_upper=0.1,
+                                  RMSE_tol=1e-3, 
                                   fRMSE_tol=1e-1, 
                                   init_deg=None, 
                                   max_degree=None,
@@ -463,14 +462,17 @@ class PolyEmu():
             AIC_list.append(AIC)
             BIC_list.append(BIC)
 
-            if RMSE_val < RMSE_upper: # if the RMSE is lower than the upper bound, we accept the model, and save it for later selection
-                coeffs_list.append(coeffs)
-                multi_indices_list.append(multi_indices)
-            else: # If the RMSE exceeds the upper bound, we reject the model straight away.
-                coeffs_list.append(None) 
-                multi_indices_list.append(None)
+            # if RMSE_val < RMSE_upper: # if the RMSE is lower than the upper bound, we accept the model, and save it for later selection
+            #     coeffs_list.append(coeffs)
+            #     multi_indices_list.append(multi_indices)
+            # else: # If the RMSE exceeds the upper bound, we reject the model straight away.
+            #     coeffs_list.append(None) 
+            #     multi_indices_list.append(None)
 
-            if RMSE_val < RMSE_lower:
+            coeffs_list.append(coeffs)
+            multi_indices_list.append(multi_indices)
+
+            if RMSE_val < RMSE_tol:
                 self.foward_degree = d
                 print(f"Forward emulator generated with degree {d}, RMSE_val of {RMSE_val}.")
                 break
@@ -478,8 +480,8 @@ class PolyEmu():
                 print(f"Maximum degree {max_degree} reached. Now choose the best fit. ")
                 ind = select_best_model(RMSE_val_list, aic_list=AIC_list, bic_list=BIC_list, rmse_tol=fRMSE_tol)
                 # assert RMSE_val_list[ind] < RMSE_upper, "Failed: The best model has RMSE higher than the upper bound."
-                if RMSE_val_list[ind] > RMSE_upper:
-                    warning("Warning: The best model has RMSE higher than {}.".format(RMSE_upper))
+                # if RMSE_val_list[ind] > RMSE_upper:
+                #     warning("Warning: The best model has RMSE higher than {}.".format(RMSE_upper))
                 
                 coeffs = coeffs_list[ind]
                 multi_indices = multi_indices_list[ind]
@@ -490,9 +492,9 @@ class PolyEmu():
             print("Performing dimension reduction...")
             Mm, _ = compute_moments_vector_output(X_train_scaled, Y_train_scaled, multi_indices)
             if per_mode_thres is None:
-                threshold = RMSE_lower * 1e-2
+                threshold = RMSE_tol * 1e-2
             else:
-                threshold = min(per_mode_thres, RMSE_lower)
+                threshold = min(per_mode_thres, RMSE_tol)
             mask = filter_modes(coeffs, Mm, threshold=threshold)
             multi_indices = multi_indices[mask]
             print(f"Dimension reduced  from {coeffs.shape[0]} modes to {multi_indices.shape[0]} modes.")
@@ -552,8 +554,8 @@ class PolyEmu():
                                    Y_train_scaled,
                                    X_val_scaled,
                                    Y_val_scaled,
-                                   RMSE_upper=0.1,
-                                   RMSE_lower=1e-2, 
+                                #    RMSE_upper=0.1,
+                                   RMSE_tol=1e-2, 
                                    fRMSE_tol=1e-1, 
                                    init_deg=None, 
                                    max_degree=None,
@@ -601,14 +603,17 @@ class PolyEmu():
             AIC_list.append(AIC)
             BIC_list.append(BIC)
 
-            if RMSE_val < RMSE_upper: # if the RMSE is lower than the upper bound, we accept the model, and save it for later selection
-                coeffs_list.append(coeffs)
-                multi_indices_list.append(multi_indices)
-            else: # If the RMSE exceeds the upper bound, we reject the model straight away.
-                coeffs_list.append(None) 
-                multi_indices_list.append(None)
+            # if RMSE_val < RMSE_upper: # if the RMSE is lower than the upper bound, we accept the model, and save it for later selection
+            #     coeffs_list.append(coeffs)
+            #     multi_indices_list.append(multi_indices)
+            # else: # If the RMSE exceeds the upper bound, we reject the model straight away.
+            #     coeffs_list.append(None) 
+            #     multi_indices_list.append(None)
 
-            if RMSE_val < RMSE_lower:
+            coeffs_list.append(coeffs)
+            multi_indices_list.append(multi_indices)
+
+            if RMSE_val < RMSE_tol:
                 self.backward_degree = d
                 print(f"Backward emulator generated with degree {d}, RMSE_val of {RMSE_val}.")
                 break
@@ -617,8 +622,9 @@ class PolyEmu():
                 ind = select_best_model(RMSE_val_list, aic_list=AIC_list, bic_list=BIC_list, rmse_tol=fRMSE_tol)
                 # assert RMSE_val_list[ind] < RMSE_upper, "Failed: The best model has RMSE higher than the upper bound."
 
-                if RMSE_val_list[ind] > RMSE_upper:
-                    warning("Warning: The best model has RMSE higher than {}.".format(RMSE_upper))
+                # if RMSE_val_list[ind] > RMSE_upper:
+                #     warning("Warning: The best model has RMSE higher than {}.".format(RMSE_upper))
+
                 coeffs = coeffs_list[ind]
                 multi_indices = multi_indices_list[ind]
                 self.backward_degree = degree + ind
@@ -628,9 +634,9 @@ class PolyEmu():
             print("Performing dimension reduction...")
             Mm, _ = compute_moments_vector_output(Y_train_scaled, X_train_scaled, multi_indices)
             if per_mode_thres is None:
-                threshold = RMSE_lower * 1e-2
+                threshold = RMSE_tol * 1e-2
             else:
-                threshold = min(per_mode_thres, RMSE_lower)
+                threshold = min(per_mode_thres, RMSE_tol)
             mask = filter_modes(coeffs, Mm, threshold=threshold)
             multi_indices = multi_indices[mask]
             print(f"Dimension reduced  from {coeffs.shape[0]} modes to {multi_indices.shape[0]}  modes.")
