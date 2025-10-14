@@ -281,6 +281,7 @@ class PolyEmu():
                 Y, 
                 X_test=None, 
                 Y_test=None, 
+                log_Y=False,
                 cross_validation=True,
                 test_size=0.15, 
                 # RMSE_upper=1.0,
@@ -321,6 +322,7 @@ class PolyEmu():
         self.n_params = X.shape[1]
         self.n_outputs = Y.shape[1]
         self.standardize_Y_with_std = standardize_Y_with_std
+        self.log_Y = log_Y
 
         if X_test is None or Y_test is None:
             if cross_validation:
@@ -334,6 +336,10 @@ class PolyEmu():
             X_train, Y_train = X, Y
             X_val, Y_val = X_test, Y_test
             cross_val = True
+
+        if self.log_Y:
+            Y_train = np.log(Y_train)
+            Y_val = np.log(Y_val)
 
         # Scale the training data
         self.scaler_X = StandardScaler()
@@ -437,8 +443,14 @@ class PolyEmu():
         BIC_list = []
         coeffs_list = []
         multi_indices_list = []
+        running_time_list = []
+        degree_list = []
+        import time
 
         for d in range(degree, max_degree + 1):
+            start_time = time.time()
+
+            degree_list.append(d)
             if d == degree:
                 multi_indices = generate_multi_indices(self.n_params, d)
             else:
@@ -471,6 +483,10 @@ class PolyEmu():
 
             coeffs_list.append(coeffs)
             multi_indices_list.append(multi_indices)
+
+            end_time = time.time()
+            running_time = end_time - start_time
+            running_time_list.append(running_time)
 
             if RMSE_val < RMSE_tol:
                 self.foward_degree = d
@@ -516,6 +532,8 @@ class PolyEmu():
         self.forward_RMSE_list = RMSE_val_list
         self.forward_AIC_list = AIC_list
         self.forward_BIC_list = BIC_list
+        self.forward_running_time_list = running_time_list
+        self.forward_degree_list = degree_list
         
         pass
 
@@ -547,6 +565,8 @@ class PolyEmu():
                 Y_pred = Y_pred[0]
         else:
             Y_pred = Y_pred.reshape(Xshape[:-1] + (self.n_outputs,))
+        if self.log_Y:
+            return np.exp(Y_pred)
         return Y_pred
 
     def generate_backward_emulator(self, 
@@ -667,7 +687,10 @@ class PolyEmu():
             pass
         else:
             raise ValueError("Input must be a float, 1D list, or ND numpy array")
-        
+
+        if self.log_Y:
+            Y = np.log(Y)
+
         Yshape = Y.shape
         assert Yshape[-1] == self.n_outputs, "Input must have the same number of outputs (i.e., the dimension of the last axis) as the emulator"
 
