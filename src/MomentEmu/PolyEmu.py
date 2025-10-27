@@ -469,7 +469,7 @@ class PolyEmu():
         degree_list = []
         import time
 
-        for d in range(degree, max_degree + 1):
+        for d in range(init_deg, max_degree + 1):
             start_time = time.time()
 
             degree_list.append(d)
@@ -606,15 +606,13 @@ class PolyEmu():
                                    batch_size=10000):
         if init_deg is None:
             if self.n_outputs > 6:
-                degree = 1
+                init_deg = 1
             elif self.n_outputs < 3:
-                degree = 3
+                init_deg = 3
             else:
-                degree = 2
-        else:
-            degree = init_deg
+                init_deg = 2
 
-        assert degree <= max_degree, "Initial degree must be less than or equal to max_degree"
+        assert init_deg <= max_degree, "Initial degree must be less than or equal to max_degree"
 
         coeffs_list = []
         RMSE_val_list = []
@@ -622,8 +620,8 @@ class PolyEmu():
         BIC_list = []
         multi_indices_list = []
 
-        for d in range(degree, max_degree + 1):
-            if d == degree:
+        for d in range(init_deg, max_degree + 1):
+            if d == init_deg:
                 multi_indices = generate_multi_indices(self.n_outputs, d)
             else:
                 aux_indices = given_order_indices(self.n_outputs, d)
@@ -669,8 +667,8 @@ class PolyEmu():
 
                 coeffs = coeffs_list[ind]
                 multi_indices = multi_indices_list[ind]
-                self.backward_degree = degree + ind
-                print(f"Backward emulator generated with degree {degree+ind}, RMSE_val of {RMSE_val_list[ind]}.")
+                self.backward_degree = init_deg + ind
+                print(f"Backward emulator generated with degree {init_deg+ind}, RMSE_val of {RMSE_val_list[ind]}.")
 
         if dim_reduction:
             print("Performing dimension reduction...")
