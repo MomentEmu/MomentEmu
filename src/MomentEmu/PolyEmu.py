@@ -297,7 +297,7 @@ class PolyEmu():
                 per_mode_thres=None,
                 return_max_frac_err=False,
                 standardize_Y_with_std=True,
-                batch_size=10000):
+                batch_size=None):
         """
         Polynomial emulator class for both forward and backward emulation.
         X: N x n array of input parameters. N is the number of samples, n is the number of parameters.
@@ -324,6 +324,9 @@ class PolyEmu():
         self.standardize_Y_with_std = standardize_Y_with_std
         self.log_Y = log_Y
 
+        if batch_size is None:
+            batch_size = X.shape[0]
+
         if X_test is None or Y_test is None:
             if cross_validation:
                 # Split into training and validation
@@ -339,7 +342,8 @@ class PolyEmu():
 
         if self.log_Y:
             Y_train = np.log(Y_train)
-            Y_val = np.log(Y_val)
+            if cross_val:
+                Y_val = np.log(Y_val)
 
         # Scale the training data
         self.scaler_X = StandardScaler()
@@ -358,7 +362,7 @@ class PolyEmu():
 
 
         if forward:
-            print("Generating forward emulator...")
+            print("\n Generating forward emulator...")
 
             max_deg_forward = max_order(self.n_params, X_train.shape[0])
 
@@ -381,10 +385,20 @@ class PolyEmu():
                 batch_size=batch_size
             )
             if return_max_frac_err:
-                Y_val_pred = self.forward_emulator(X_val)
-                max_frac_err = np.max(np.abs((Y_val_pred - Y_val) / (Y_val+1e-10)))
+                # Convert scaled validation data back to original scale for proper comparison
+                X_val_unscaled = self.scaler_X.inverse_transform(X_val)
+                Y_val_unscaled = self.scaler_Y.inverse_transform(Y_val)
+                if self.log_Y:
+                    Y_val_unscaled = np.exp(Y_val_unscaled)
+                
+                Y_val_pred = self.forward_emulator(X_val_unscaled)
+                frac_err = np.abs((Y_val_pred - Y_val_unscaled)) / (np.abs(Y_val_unscaled) + 1e-10)
+                max_frac_err = np.max(frac_err)
                 self.forward_max_frac_err = max_frac_err
-                print(f"Forward emulator maximum fractional error: {max_frac_err}. (If the true value is close to 0, this value could be extremely large. This is fine.)")
+                ind = np.unravel_index(np.argmax(frac_err), Y_val_unscaled.shape)
+                print(f"\nForward emulator maximum fractional error: {max_frac_err} at index {ind}. \n \
+                      True value: {Y_val_unscaled[ind]}, Predicted value: {Y_val_pred[ind]} \n \
+                      (If the true value is close to 0, this value could be very large.)")
 
         if backward:
             print("Generating backward emulator...")
@@ -407,10 +421,20 @@ class PolyEmu():
                                             per_mode_thres=per_mode_thres,
                                             batch_size=batch_size)
             if return_max_frac_err:
-                X_val_pred = self.backward_emulator(Y_val)
-                max_frac_err = np.max(np.abs((X_val_pred - X_val) / (X_val+1e-10)))
+                # Convert scaled validation data back to original scale for proper comparison
+                X_val_unscaled = self.scaler_X.inverse_transform(X_val)
+                Y_val_unscaled = self.scaler_Y.inverse_transform(Y_val)
+                if self.log_Y:
+                    Y_val_unscaled = np.exp(Y_val_unscaled)
+                
+                X_val_pred = self.backward_emulator(Y_val_unscaled)
+                frac_err = np.abs((X_val_pred - X_val_unscaled)) / (np.abs(X_val_unscaled) + 1e-10)
+                max_frac_err = np.max(frac_err)
                 self.backward_max_frac_err = max_frac_err
-                print(f"Backward emulator maximum fractional error: {max_frac_err}. (If the true value is close to 0, this value could be extremely large. This is fine.)")
+                ind = np.unravel_index(np.argmax(frac_err), X_val_unscaled.shape)
+                print(f"\nBackward emulator maximum fractional error: {max_frac_err} at index {ind}. \n \
+                      True value: {X_val_unscaled[ind]}, Predicted value: {X_val_pred[ind]} \n \
+                      (If the true value is close to 0, this value could be very large.)")
 
     def generate_forward_emulator(self, 
                                   X_train_scaled, 
@@ -428,15 +452,13 @@ class PolyEmu():
 
         if init_deg is None:
             if self.n_params > 6:
-                degree = 1
+                init_deg = 1
             elif self.n_params < 3:
-                degree = 3
+                init_deg = 3
             else:
-                degree = 2
-        else:
-            degree = init_deg
+                init_deg = 2
 
-        assert degree <= max_degree, "Initial degree must be less than or equal to max_degree"
+        assert init_deg <= max_degree, "Initial degree must be less than or equal to max_degree"
 
         RMSE_val_list = []
         AIC_list = []
@@ -451,7 +473,7 @@ class PolyEmu():
             start_time = time.time()
 
             degree_list.append(d)
-            if d == degree:
+            if d == init_deg:
                 multi_indices = generate_multi_indices(self.n_params, d)
             else:
                 aux_indices = given_order_indices(self.n_params, d)
@@ -501,14 +523,14 @@ class PolyEmu():
                 
                 coeffs = coeffs_list[ind]
                 multi_indices = multi_indices_list[ind]
-                self.foward_degree = degree + ind
-                print(f"Forward emulator generated with degree {degree+ind}, RMSE_val of {RMSE_val_list[ind]}.")
-        
+                self.foward_degree = init_deg + ind
+                print(f"Forward emulator generated with degree {init_deg+ind}, RMSE_val of {RMSE_val_list[ind]}.")
+
         if dim_reduction:
             print("Performing dimension reduction...")
             Mm, _ = compute_moments_vector_output(X_train_scaled, Y_train_scaled, multi_indices)
             if per_mode_thres is None:
-                threshold = RMSE_tol * 1e-2
+                threshold = RMSE_tol * 1e-4
             else:
                 threshold = min(per_mode_thres, RMSE_tol)
             mask = filter_modes(coeffs, Mm, threshold=threshold)
