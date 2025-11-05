@@ -8,6 +8,8 @@ A lightweight, interpretable polynomial emulator for smooth mappings, implemente
 **MomentEmu** implements the **moment-projection polynomial emulator** introduced in Zhang (2025) ([arXiv:2507.02179](https://arxiv.org/abs/2507.02179)).
 It builds interpretable, closed-form polynomial emulators via moment matrices, achieving millisecond-level inference and symbolic transparency.
 
+**Note:** Ideally, the test set should consist of random samples drawn independently from the parameter space. The user should avoid constructing the training and test sets as disjoint subsets of the same regular grid, since in that case the test set cannot reveal potential overfitting of the emulator.
+
 For a complete working example demonstrating MomentEmu applied to cosmological parameter estimation (PolyCAMB), see the companion repository: [MomentEmu-PolyCAMB-examples](https://github.com/MomentEmu/MomentEmu-PolyCAMB-examples).
 
 ## 🚀 Features
